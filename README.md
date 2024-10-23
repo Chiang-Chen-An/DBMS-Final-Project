@@ -142,3 +142,22 @@ Here's an introduction to each column in the 14 CSV files:
     - `status`: Status description (e.g., "Finished," "Retired," etc.). 
 
 Each CSV file covers a different aspect of Formula 1, from circuits and drivers to race results and standings.
+
+Here’s a more detailed introduction for the 14 tables in this dataset:
+
+1. **Circuits.csv**: Contains data about F1 circuits, including location details like latitude, longitude, and altitude.
+2. **Constructor Results**: Performance data of constructors per race, including points and status.
+3. **Constructor Standings**: Constructor rankings by points and wins.
+4. **Constructors**: Basic details of constructors like nationality and names.
+5. **Driver Standings**: Drivers’ ranking data across races.
+6. **Drivers**: Personal information about drivers including nationality, date of birth, and code.
+7. **Lap Times**: Details of lap times for drivers in each race.
+8. **Pit Stops**: Information about pit stops during races, including duration.
+9. **Qualifying**: Qualifying results for each driver per race.
+10. **Races.csv**: Information about races, including dates, circuits, and race names.
+11. **Results.csv**: Detailed race results for each driver, including position, points, and laps.
+12. **Seasons.csv**: Seasons data, including year and corresponding URLs.
+13. **Sprint Results**: Results of sprint races, including fastest laps and positions.
+14. **Status.csv**: Status codes for race outcomes such as "Finished" or "Retired."
+
+This offers a well-rounded set of data, covering races, drivers, constructors, and results from various aspects.
