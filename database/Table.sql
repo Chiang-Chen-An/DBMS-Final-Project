@@ -53,7 +53,7 @@ create table constructor_standings(
 );
 
 load data local infile './archive/constructor_standings.csv'
-into table constructor_standings_id
+into table constructor_standings
 fields terminated by ','
 enclosed by '"'
 lines terminated by '\n'
