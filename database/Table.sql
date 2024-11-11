@@ -9,10 +9,10 @@ create table circuits(
     circuit_name varchar(50),
     city varchar(50),
     country varchar(50),
-    lat double;
-    lng double;
-    alt double;
-    wiki_url varchar(100);
+    lat double,
+    lng double,
+    alt double,
+    wiki_url varchar(100),
     primary key (circuits_id)
 );
 
@@ -25,12 +25,12 @@ ignore 1 lines;
 
 -- constructor_results
 create table constructor_results(
-    constructor_result_id int default 0, NOT NULL,
+    constructor_result_id int default 0 NOT NULL,
     race_id int default 0,
     constructor_id int default 0,
     points int,
     status_of_result varchar(2),
-    primary key (constructor_Result_id, result_id)
+    primary key (constructor_Result_id, race_id)
 );
 
 load data local infile './archive/constructor_results.csv'
@@ -123,7 +123,7 @@ create table lap_times(
     position int,
     finish_time time,
     finish_time_in_milliseconds int,
-    primary key (race_id, driver_id)
+    primary key (race_id, driver_id, lap_num)
 );
 
 load data local infile './archive/lap_times.csv'
@@ -142,7 +142,7 @@ create table pit_stops(
     time_of_pit_stop datetime,
     duration time,
     duration_in_milliseconds int,
-    primary key (race_id, driver_id)
+    primary key (race_id, driver_id, lap_num)
 );
 
 load data local infile './archive/pit_stops.csv'
@@ -206,7 +206,7 @@ create table results(
     position_text varchar(5),
     position_order int,
     points int,
-    primary key (race_id)
+    primary key (result_id)
 );
 
 load data local infile './archive/results.csv'
@@ -216,15 +216,15 @@ enclosed by '"'
 lines terminated by '\n'
 ignore 1 lines;
 
--- seaons
-create table seaons(
+-- seasons
+create table seasons(
     year_of_race int,
     wiki_url varchar(100),
-    primary key (race_id)
+    primary key (year_of_race)
 );
 
-load data local infile './archive/seaons.csv'
-into table seaons
+load data local infile './archive/seasons.csv'
+into table seasons
 fields terminated by ','
 enclosed by '"'
 lines terminated by '\n'
@@ -242,7 +242,7 @@ create table sprint_results(
     position_text varchar(5),
     position_order int,
     points int,
-    primary key (race_id)
+    primary key (result_id)
 );
 
 load data local infile './archive/sprint_results.csv'
