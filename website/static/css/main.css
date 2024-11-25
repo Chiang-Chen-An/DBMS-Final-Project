@@ -1,0 +1,39 @@
+body {
+    font-family: Arial, sans-serif;
+    background-image: url("../source/bg.png");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+#menu1, #menu2, #menu3 {
+    display: none;
+}
+.button-container {
+    margin: 20px 0;
+}
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+table, th, td {
+    border: 1px solid black;
+}
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+.close-btn {
+    cursor: pointer;
+    color: red;
+    font-size: 24px;
+    border: none;
+    background: transparent;
+    position: absolute;
+    margin-left: 95%;
+}
