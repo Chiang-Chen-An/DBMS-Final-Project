@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 database</title>
+    <link id="stylesheet" rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='source/favicon.ico') }}">
+</head>
+<body>
+    <h1>Welcome to F1 database website!</h1>
+    
+    <div class="button-container">
+        <button onclick="showMenu(1)">賽事</button>
+        <button onclick="showMenu(2)">車隊</button>
+        <button onclick="showMenu(3)">排名</button>
+    </div>
+    
+    <div id="menu1">
+        <button class="close-btn" onclick="closeMenu()">x</button>
+        <h2>賽事</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>賽事名稱</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>a</td>
+                </tr>
+                <tr>
+                    <td>b</td>
+                </tr>
+                <tr>
+                    <td>c</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="menu2">
+        <button class="close-btn" onclick="closeMenu()">x</button>
+        <h2>車隊</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>車隊名稱</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>a</td>
+                </tr>
+                <tr>
+                    <td>b</td>
+                </tr>
+                <tr>
+                    <td>c</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="menu3">
+        <button class="close-btn" onclick="closeMenu()">x</button>
+        <h2>排名</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>車隊排名</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>a</td>
+                </tr>
+                <tr>
+                    <td>b</td>
+                </tr>
+                <tr>
+                    <td>c</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function showMenu(menuNumber) {
+            document.getElementById("menu1").style.display = "none";
+            document.getElementById("menu2").style.display = "none";
+            document.getElementById("menu3").style.display = "none";
+
+            if (menuNumber === 1) {
+                document.getElementById("menu1").style.display = "block";
+            } else if (menuNumber === 2) {
+                document.getElementById("menu2").style.display = "block";
+            } else if (menuNumber === 3) {
+                document.getElementById("menu3").style.display = "block";
+            }
+        }
+
+        function closeMenu() {
+            document.getElementById("menu1").style.display = "none";
+            document.getElementById("menu2").style.display = "none";
+            document.getElementById("menu3").style.display = "none";
+        }
+    </script>
+
+</body>
+</html>
