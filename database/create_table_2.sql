@@ -10,7 +10,7 @@ CREATE TABLE `circuits` (
   `url` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`circuitId`),
   UNIQUE KEY `url` (`url`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE `constructorResults` (
   `constructorResultsId` int(11) NOT NULL AUTO_INCREMENT,
@@ -19,7 +19,7 @@ CREATE TABLE `constructorResults` (
   `points` float DEFAULT NULL,
   `status` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`constructorResultsId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE `constructorStandings` (
   `constructorStandingsId` int(11) NOT NULL AUTO_INCREMENT,
@@ -30,7 +30,7 @@ CREATE TABLE `constructorStandings` (
   `positionText` varchar(255) DEFAULT NULL,
   `wins` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`constructorStandingsId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE `constructors` (
   `constructorId` int(11) NOT NULL AUTO_INCREMENT,
@@ -40,7 +40,7 @@ CREATE TABLE `constructors` (
   `url` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`constructorId`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE `driverStandings` (
   `driverStandingsId` int(11) NOT NULL AUTO_INCREMENT,
@@ -51,7 +51,7 @@ CREATE TABLE `driverStandings` (
   `positionText` varchar(255) DEFAULT NULL,
   `wins` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`driverStandingsId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE `drivers` (
   `driverId` int(11) NOT NULL AUTO_INCREMENT,
@@ -65,7 +65,7 @@ CREATE TABLE `drivers` (
   `url` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`driverId`),
   UNIQUE KEY `url` (`url`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE `lapTimes` (
   `raceId` int(11) NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE `lapTimes` (
   `milliseconds` int(11) DEFAULT NULL,
   PRIMARY KEY (`raceId`,`driverId`,`lap`),
   KEY `raceId` (`raceId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE `pitStops` (
   `raceId` int(11) NOT NULL,
@@ -88,7 +88,7 @@ CREATE TABLE `pitStops` (
   `milliseconds` int(11) DEFAULT NULL,
   PRIMARY KEY (`raceId`,`driverId`,`stop`),
   KEY `raceId` (`raceId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE `qualifying` (
   `qualifyId` int(11) NOT NULL AUTO_INCREMENT,
@@ -101,7 +101,7 @@ CREATE TABLE `qualifying` (
   `q2` varchar(255) DEFAULT NULL,
   `q3` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`qualifyId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE `races` (
   `raceId` int(11) NOT NULL AUTO_INCREMENT,
@@ -124,7 +124,7 @@ CREATE TABLE `races` (
   `sprint_time` time DEFAULT NULL,
   PRIMARY KEY (`raceId`),
   UNIQUE KEY `url` (`url`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE `results` (
   `resultId` int(11) NOT NULL AUTO_INCREMENT,
@@ -146,14 +146,14 @@ CREATE TABLE `results` (
   `fastestLapSpeed` varchar(255) DEFAULT NULL,
   `statusId` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`resultId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE `seasons` (
   `year` int(11) NOT NULL DEFAULT '0',
   `url` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`year`),
   UNIQUE KEY `url` (`url`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 
 CREATE TABLE `sprintResults` (
@@ -175,17 +175,17 @@ CREATE TABLE `sprintResults` (
   `statusId` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`sprintResultId`),
   KEY `raceId` (`raceId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 
 CREATE TABLE `status` (
   `statusId` int(11) NOT NULL AUTO_INCREMENT,
   `status` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`statusId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(64) NOT NULL
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `username` VARCHAR(255) NOT NULL UNIQUE,
+    `password` VARCHAR(64) NOT NULL
 );
