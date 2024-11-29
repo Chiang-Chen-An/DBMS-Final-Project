@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, flash, session
+from flask import Flask, render_template, request, redirect, flash, session, jsonify
 import mysql.connector
 import hashlib
 
@@ -20,92 +20,120 @@ def hash_password(password):
     sha256_hash.update(password.encode('utf-8'))
     return sha256_hash.hexdigest()
 
-@app.route("/", methods=["GET", "POST"])
+@app.route('/', methods=['GET', 'POST'])
+def homepage():
+    return render_template('homepage.html')
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == "POST":
+    if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 
-        # TODO # 4: Hash the password using SHA-256
-        # password = ???
-        hashed_password = hash_password(password)
+        db_connection = get_db_connection()
+        cursor = db_connection.cursor(dictionary=True)
 
-        # Connect to the database
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM users WHERE username = %s AND password = %s', (username, hash_password(password)))
+        user = cursor.fetchone()
 
-        # TODO # 2. Check if the user exists in the database and whether the password is correct
-        # Query to check the user
-        # cursor.execute(f"SELECT password FROM users WHERE username = '{username}'")
-        cursor.execute("SELECT password FROM users WHERE username = %s", (username,))
-        result = cursor.fetchone() # fetchone() returns None if no record is found
-        # print(result)
-
-        # if ???:
-        if result and result[0] == hashed_password:
-            session['username'] = username
-            return redirect("/homepage")
-        else:
-            flash("Invalid username or password")
-            return redirect("/")
-
-        
-        # Close the connection
         cursor.close()
-        conn.close()
+        db_connection.close()
 
-        # if pass the check, redirect to the welcome page and store the username in the session
-        session['username'] = username
-        return redirect("/welcome") # commit this line after completing TODO # 2
-        
-    return render_template("login.html")
+        if user:
+            session['user'] = user
+            return render_template('homepage.html')
+        else:
+            flash('Invalid username or password', 'error')
 
-@app.route("/signup", methods=["GET", "POST"])
-def signup():
-    if request.method == "POST":
+    return render_template('login.html')
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    session.pop('user', None)
+    return redirect('/')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 
-        # TODO # 4: Hash the password using SHA-256
-        # password = ???
-        hashed_password = hash_password(password)
+        db_connection = get_db_connection()
+        cursor = db_connection.cursor()
 
-        # Connect to the database
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s)', (username, hash_password(password)))
+        db_connection.commit()
 
+        cursor.close()
+        db_connection.close()
 
+        flash('Account created successfully', 'success')
+        return redirect('/login')
 
-        # TODO # 3: Add the query to insert a new user into the database
-        try:
-            cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
-            conn.commit()
-            flash("Account created successfully! Please log in.", "success")
-            return redirect("/")
-        except mysql.connector.Error as err:
-            flash(f"Error: {err}", "danger")
-        finally:
-            cursor.close()
-            conn.close()
-    
-    return render_template("signup.html")
+    return render_template('register.html')
 
-@app.route("/logout")
-def logout():
-    session.pop('username', None)
-    return redirect("/")
+@app.route('/race/<int:year>', methods=['GET'])
+def getRace(year):
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor(dictionary=True)
 
-@app.route('/homepage')
-def index():
-    select_item = ('circuits_id', 'circuit_name', 'city')
-    query = f"SELECT {','.join(select_item)} FROM circuits"
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(query)
-    results = cursor.fetchall()
+    cursor.execute('SELECT race_id, circuit_name FROM races WHERE year_of_race = %s', (year,))
+    races = cursor.fetchall()
+
     cursor.close()
-    conn.close()
-    return render_template('homepage.html', results=results, select_item=select_item)
+    db_connection.close()
+
+    return jsonify(races)
+
+@app.route('/driver/<int:constructor_id>', methods=['GET'])
+def getDriver(constructor_id):
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor(dictionary=True)
+
+    cursor.execute('SELECT driver_id, f_name, l_name, date_of_birth, nationality FROM drivers d JOIN constructorAndDriver cd ON cd.driverID = d.driver_id WHERE cd.constructorID = %s;', (constructor_id,))
+    drivers = cursor.fetchall()
+
+    if drivers is None:
+        print("No drivers found")
+    else:
+        print(drivers)
+        print(constructor_id)
+    cursor.close()
+    db_connection.close()
+
+    return jsonify(drivers)
+
+@app.route('/insertUser', methods=['GET', 'POST'])
+def insertUser():
+    if request.method == 'POST':
+        db_connection = get_db_connection()
+        cursor = db_connection.cursor()
+        # 登入才能新增
+        if 'user' not in session:
+            flash('You must be logged in to insert a user', 'error')
+            cursor.close()
+            db_connection.close()
+            return redirect('/insertUser')
+        if request.form['username'] == '' or request.form['password'] == '':
+            flash('Username and password cannot be empty', 'error')
+            cursor.close()
+            db_connection.close()
+            return redirect('/insertUser')
+
+        username = request.form['username']
+        password = request.form['password']
+
+        cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s)', (username, hash_password(password)))
+        db_connection.commit()
+
+        cursor.close()
+        db_connection.close()
+
+        flash('User inserted successfully', 'success')
+        return redirect('/insertUser')
+
+    # GET request: render the homepage
+    return render_template('homepage.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

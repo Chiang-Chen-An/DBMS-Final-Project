@@ -1,154 +1,202 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>F1 database</title>
-    <link id="stylesheet" rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='source/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'styles.css') }}" />
+    <title>Race Results</title>
+    <style>
+        #resultsTable,
+        #driverTable {
+            display: none;
+        }
+
+        .year-buttons,
+        .driver-buttons {
+            display: none;
+        }
+
+        #insert-user {
+            display: none;
+        }
+    </style>
+    <script>
+        function showYearButtons() {
+            document.querySelector('.year-buttons').style.display = 'block';
+            document.querySelector('.driver-buttons').style.display = 'none';
+            document.getElementById('resultsTable').style.display = 'table';
+            document.getElementById('driverTable').style.display = 'none';
+            document.getElementById('insert-user').style.display = 'none';
+
+        }
+
+        function showResults(year) {
+            fetch(`/race/${year}`)
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('resultsTable');
+                    const tbody = table.querySelector('tbody');
+                    tbody.innerHTML = ''; // Clear previous results
+
+                    data.forEach(result => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${result.race_id}</td>
+                            <td>${result.circuit_name}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    table.style.display = 'table';
+
+                    const buttons = document.querySelectorAll('.year-buttons button');
+                    buttons.forEach(button => button.classList.remove('active'));
+                    document.getElementById(year).classList.add('active');
+                });
+        }
+
+        function showDriverButtons() {
+            document.querySelector('.year-buttons').style.display = 'none';
+            document.querySelector('.driver-buttons').style.display = 'block';
+            document.getElementById('resultsTable').style.display = 'none';
+            document.getElementById('driverTable').style.display = 'table';
+            document.getElementById('insert-user').style.display = 'none';
+        }
+
+        function showDriver(constructor_id) {
+            fetch(`/driver/${constructor_id}`)
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('driverTable');
+                    const tbody = table.querySelector('tbody');
+                    tbody.innerHTML = ''; // Clear previous results
+
+                    data.forEach(driver => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${driver.driver_id}</td>
+                            <td>${driver.f_name}</td>
+                            <td>${driver.l_name}</td>
+                            <td>${driver.date_of_birth}</td>
+                            <td>${driver.nationality}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    table.style.display = 'table';
+                });
+        }
+
+        function showInsertUser() {
+            document.getElementById('insert-user').style.display = 'block';
+            document.getElementById('resultsTable').style.display = 'none';
+            document.getElementById('driverTable').style.display = 'none';
+            document.querySelector('.year-buttons').style.display = 'none';
+            document.querySelector('.driver-buttons').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(function () {
+                const flashes = document.querySelectorAll('.flashes li');
+                flashes.forEach(flash => {
+                    flash.style.display = 'none';
+                });
+            }, 3000); // 3 seconds
+        });
+    </script>
 </head>
 
 <body>
-    <div class="bg"></div>
     <div class="content">
-        <h1>Welcome to F1 database website!</h1>
-
-        <div class="user-info">
-            <span id="username">Welcome, {{ username }}!</span>
-            <div class="logout_container">
-                <form action="/logout" method="get">
-                    <button class="logout-btn" type="submit">Log Out</button>
-                </form>
+        <div class="header">
+            <h1 class="website-title">
+                <img src="{{ url_for('static', filename='source/f1icon.png') }}" alt="F1 Icon" class="title-icon">
+                F1 Race
+            </h1>
+            <div class="auth-buttons">
+                {% if 'user' in session %}
+                <h2>Welcome! {{ session['user']['username'] }}</h2>
+                <button id="logout" onclick="window.location.href='/logout'">登出</button>
+                {% else %}
+                <button id="login" onclick="window.location.href='/login'">登入</button>
+                {% endif %}
             </div>
         </div>
 
-        <div class="button-container">
-            <button onclick="showMenu(1)">賽事</button>
-            <button onclick="showMenu(2)">車隊</button>
-            <button onclick="showMenu(3)">排名</button>
-            <button onclick="showMenu(4)">賽道</button>
+
+        <button id="race" onclick="showYearButtons()">賽事</button>
+        <button id="driver" onclick="showDriverButtons()">車手</button>
+        <button id="insertUser" onclick="showInsertUser()">新增使用者</button>
+
+        <div class="year-buttons">
+            <ul>
+                <li><button id="2024" onclick="showResults(2024)">2024</button></li>
+                <li><button id="2023" onclick="showResults(2023)">2023</button></li>
+                <li><button id="2022" onclick="showResults(2022)">2022</button></li>
+                <li><button id="2021" onclick="showResults(2021)">2021</button></li>
+                <li><button id="2020" onclick="showResults(2020)">2020</button></li>
+                <li><button id="2019" onclick="showResults(2019)">2019</button></li>
+                <li><button id="2018" onclick="showResults(2018)">2018</button></li>
+            </ul>
         </div>
 
-        <div id="menu1">
-            <button class="close-btn" onclick="closeMenu()">x</button>
-            <h2>賽事</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>賽事名稱</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>a</td>
-                    </tr>
-                    <tr>
-                        <td>b</td>
-                    </tr>
-                    <tr>
-                        <td>c</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="driver-buttons">
+            <ul>
+                <li><button id="1" onclick="showDriver(1)">1</button></li>
+                <li><button id="2" onclick="showDriver(2)">2</button></li>
+                <li><button id="3" onclick="showDriver(3)">3</button></li>
+                <li><button id="4" onclick="showDriver(4)">4</button></li>
+                <li><button id="5" onclick="showDriver(5)">5</button></li>
+                <li><button id="6" onclick="showDriver(6)">6</button></li>
+            </ul>
         </div>
 
-        <div id="menu2">
-            <button class="close-btn" onclick="closeMenu()">x</button>
-            <h2>車隊</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>車隊名稱</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>a</td>
-                    </tr>
-                    <tr>
-                        <td>b</td>
-                    </tr>
-                    <tr>
-                        <td>c</td>
-                    </tr>
-                </tbody>
-            </table>
+        <table id="resultsTable" border="1">
+            <thead>
+                <tr>
+                    <th>race_id</th>
+                    <th>circuit_name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Results will be populated here -->
+            </tbody>
+        </table>
+
+        <table id="driverTable" border="1">
+            <thead>
+                <tr>
+                    <th>driver_id</th>
+                    <th>f_name</th>
+                    <th>l_name</th>
+                    <th>date_of_birth</th>
+                    <th>nationality</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Driver results will be populated here -->
+            </tbody>
+        </table>
+
+        <div class="insert-user" id="insert-user">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
+            <form action="/insertUser" method="POST">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password">
+                <button type="submit">Add New User</button>
+            </form>
         </div>
-
-        <div id="menu3">
-            <button class="close-btn" onclick="closeMenu()">x</button>
-            <h2>排名</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>車隊排名</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>a</td>
-                    </tr>
-                    <tr>
-                        <td>b</td>
-                    </tr>
-                    <tr>
-                        <td>c</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div id="menu4">
-            <button class="close-btn" onclick="closeMenu()">x</button>
-            <h2>Circuits</h2>
-            <table class="table-container">
-                <thead>
-                    <tr>
-                        {% for item in select_item %}
-
-                        <th>{{ item }}</th>
-
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in results %}
-                    <tr>
-                        <td>{{ row[0] }}</td>
-                        <td>{{ row[1] }}</td>
-                        <td>{{ row[2] }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <script>
-            function showMenu(menuNumber) {
-                document.getElementById("menu1").style.display = "none";
-                document.getElementById("menu2").style.display = "none";
-                document.getElementById("menu3").style.display = "none";
-                document.getElementById("menu4").style.display = "none";
-
-                if (menuNumber === 1) {
-                    document.getElementById("menu1").style.display = "block";
-                } else if (menuNumber === 2) {
-                    document.getElementById("menu2").style.display = "block";
-                } else if (menuNumber === 3) {
-                    document.getElementById("menu3").style.display = "block";
-                } else if (menuNumber === 4) {
-                    document.getElementById("menu4").style.display = "block";
-                }
-            }
-
-            function closeMenu() {
-                document.getElementById("menu1").style.display = "none";
-                document.getElementById("menu2").style.display = "none";
-                document.getElementById("menu3").style.display = "none";
-                document.getElementById("menu4").style.display = "none";
-            }
-        </script>
     </div>
 </body>
 
