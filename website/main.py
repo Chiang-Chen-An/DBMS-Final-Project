@@ -97,7 +97,15 @@ def logout():
 
 @app.route('/homepage')
 def index():
-    return render_template('homepage.html')
+    select_item = ('circuits_id', 'circuit_name', 'city')
+    query = f"SELECT {','.join(select_item)} FROM circuits"
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(query)
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('homepage.html', results=results, select_item=select_item)
 
 if __name__ == '__main__':
     app.run(debug=True)
