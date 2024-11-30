@@ -8,7 +8,7 @@ app.secret_key = "your_secret_key"
 db_config = {
     'host': 'localhost',  # Change this to your MySQL host
     'user': 'root',  # Change this to your MySQL username
-    'password': '03020302',  # Change this to your MySQL password
+    'password': 'nanacoding.psw',  # Change this to your MySQL password
     'database': 'dbms_final'  # Change this to your MySQL database name
 }
 
@@ -39,11 +39,13 @@ def login():
         cursor.close()
         db_connection.close()
 
+        # print(user)
         if user:
             session['user'] = user
-            return render_template('homepage.html')
+            return redirect("/")
         else:
-            flash('Invalid username or password', 'error')
+            flash('Invalid username or password', "danger")
+            return redirect("/login")
 
     return render_template('login.html')
 
@@ -61,14 +63,24 @@ def register():
         db_connection = get_db_connection()
         cursor = db_connection.cursor()
 
-        cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s)', (username, hash_password(password)))
-        db_connection.commit()
+        if username != '' and password != '':
+            # print("username: ", username)
+            # print("password: ", password)
+            try:
+                cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hash_password(password)))
+                db_connection.commit()
+                flash("Account created successfully! Please log in.", "success")
+                return redirect("/register")
+            except mysql.connector.Error as err:
+                flash(f"Error: {err}", "danger")
+            finally:
+                cursor.close()
+                db_connection.close()
 
-        cursor.close()
-        db_connection.close()
-
-        flash('Account created successfully', 'success')
-        return redirect('/login')
+            flash('Account created successfully', 'success')
+            return redirect('/register')
+        else:
+            flash('please enter a valid username and password', "danger")
 
     return render_template('register.html')
 
