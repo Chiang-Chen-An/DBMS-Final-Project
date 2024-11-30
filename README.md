@@ -5,8 +5,8 @@
 ### Schema: [SHEMA](https://www.drawdb.app/editor?shareId=93a794d8f72495bb19ea43a748d2dda0)
 
 ## TODO list
-- [ ] login/logout
+- [x] login/logout
 - [ ] homepage
- - [ ] show data
- - [ ] link to data page route
- - [ ] conditional selection
+  - [ ] show data
+  - [ ] link to data page route
+  - [ ] conditional selection
