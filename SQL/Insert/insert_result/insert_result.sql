@@ -1,7 +1,6 @@
 DELIMITER $$
 
 CREATE PROCEDURE insert_result(
-    IN resultID INT,
     IN raceID INT,
     IN driverID INT,
     IN constructorID INT,
@@ -22,7 +21,6 @@ CREATE PROCEDURE insert_result(
 )
 BEGIN
     INSERT INTO results (
-        result_id,
         race_id,
         driver_id,
         constructor_id,
@@ -42,7 +40,6 @@ BEGIN
         status_id
     )
     VALUES (
-        resultID,
         raceID,
         driverID,
         constructorID,
@@ -65,5 +62,5 @@ END$$
 
 DELIMITER ;
 
-CALL insert_result(26565, 18, 1, 22, 1, 1, 1, '1', 1, 10, 58, '1:34:50.616', 5690616, 39, 2, '1:27:45', 218.300, 1);
+CALL insert_result(18, 1, 22, 1, 1, 1, '1', 1, 10, 58, '1:34:50.616', 5690616, 39, 2, '1:27:45', 218.300, 1);
 
