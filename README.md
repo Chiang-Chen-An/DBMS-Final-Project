@@ -21,4 +21,4 @@
   - [ ] create new driver
   - [ ] update driver data
   - [ ] delete driver data
-  *ranking should be updated after every modification 
+  - ranking should be updated after every modification 
