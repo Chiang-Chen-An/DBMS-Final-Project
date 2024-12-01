@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'styles.css') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='source/favicon.ico') }}">
+    <title>Race Results</title>
+    <style>
+        #resultsTable,
+        #driverTable {
+            display: none;
+        }
+
+        .year-buttons,
+        .driver-buttons {
+            display: none;
+        }
+
+        #insert-user {
+            display: none;
+        }
+
+    </style>
+    <script>
+        function showYearButtons() {
+            document.querySelector('.year-buttons').style.display = 'block';
+            document.querySelector('.driver-buttons').style.display = 'none';
+            document.getElementById('resultsTable').style.display = 'table';
+            document.getElementById('driverTable').style.display = 'none';
+            document.getElementById('insert-user').style.display = 'none';
+
+            const yearOptions = document.getElementById('yearOptions');
+            const driverOptions = document.getElementById('driverOptions');
+            yearOptions.style.display = 'block';
+            driverOptions.style.display = 'none';
+            filterResults();
+        }
+
+        function showResults(year) {
+            fetch(`/race/${year}`)
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('resultsTable');
+                    const tbody = table.querySelector('tbody');
+                    tbody.innerHTML = ''; // Clear previous results
+
+                    data.forEach(result => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${result.race_id}</td>
+                            <td>${result.circuit_name}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    table.style.display = 'table';
+
+                    const buttons = document.querySelectorAll('.year-buttons button');
+                    buttons.forEach(button => button.classList.remove('active'));
+                    document.getElementById(year).classList.add('active');
+                });
+        }
+
+        function showDriverButtons() {
+            document.querySelector('.year-buttons').style.display = 'none';
+            document.querySelector('.driver-buttons').style.display = 'block';
+            document.getElementById('resultsTable').style.display = 'none';
+            document.getElementById('driverTable').style.display = 'table';
+            document.getElementById('insert-user').style.display = 'none';
+
+            const yearOptions = document.getElementById('yearOptions');
+            const driverOptions = document.getElementById('driverOptions');
+            yearOptions.style.display = 'none';
+            driverOptions.style.display = 'block';
+            filterResults();
+        }
+
+        function showDriver(constructor_id) {
+            fetch(`/driver/${constructor_id}`)
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('driverTable');
+                    const tbody = table.querySelector('tbody');
+                    tbody.innerHTML = ''; // Clear previous results
+
+                    data.forEach(driver => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${driver.driver_id}</td>
+                            <td>${driver.f_name}</td>
+                            <td>${driver.l_name}</td>
+                            <td>${driver.date_of_birth}</td>
+                            <td>${driver.nationality}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    table.style.display = 'table';
+                });
+        }
+
+        function showInsertUser() {
+            document.getElementById('insert-user').style.display = 'block';
+            document.getElementById('resultsTable').style.display = 'none';
+            document.getElementById('driverTable').style.display = 'none';
+            document.querySelector('.year-buttons').style.display = 'none';
+            document.querySelector('.driver-buttons').style.display = 'none';
+
+            const yearOptions = document.getElementById('yearOptions');
+            const driverOptions = document.getElementById('driverOptions');
+            yearOptions.style.display = 'none';
+            driverOptions.style.display = 'none';
+            filterResults();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(function () {
+                const flashes = document.querySelectorAll('.flashes li');
+                flashes.forEach(flash => {
+                    flash.style.display = 'none';
+                });
+            }, 3000); // 3 seconds
+        });
+
+        function closelist(){   
+            document.querySelector('.year-buttons').style.display = 'none';
+            document.querySelector('.driver-buttons').style.display = 'none';
+            document.getElementById('resultsTable').style.display = 'none';
+            document.getElementById('driverTable').style.display = 'none';
+            document.getElementById('insert-user').style.display = 'none';
+
+            const yearOptions = document.getElementById('yearOptions');
+            const driverOptions = document.getElementById('driverOptions');
+            yearOptions.style.display = 'none';
+            driverOptions.style.display = 'none';
+            filterResults();
+        }
+
+        function filterResults() {
+            const selectedYears = Array.from(document.querySelectorAll('.yearOption:checked')).map(checkbox => checkbox.value);
+            const selectedDrivers = Array.from(document.querySelectorAll('.driverOption:checked')).map(checkbox => checkbox.value);
+
+            const raceTableRows = document.querySelectorAll('#resultsTable tbody tr');
+            raceTableRows.forEach(row => {
+                const year = row.dataset.year;
+                const driver = row.dataset.driver;
+
+                const yearMatch = selectedYears.length === 0 || selectedYears.includes(year);
+                const driverMatch = selectedDrivers.length === 0 || selectedDrivers.includes(driver);
+
+                if (yearMatch && driverMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="content">
+        <div class="header">
+            <h1 class="website-title">
+                <img src="{{ url_for('static', filename='source/f1icon.png') }}" alt="F1 Icon" class="title-icon">
+                F1 Race
+            </h1>
+            <div class="auth-buttons">
+                {% if 'user' in session %}
+                <h2>Welcome! {{ session['user']['username'] }}</h2>
+                <button id="logout" onclick="window.location.href='/logout'">登出</button>
+                {% else %}
+                <button id="login" onclick="window.location.href='/login'">登入</button>
+                {% endif %}
+            </div>
+        </div>
+
+
+        <button id="race" onclick="showYearButtons()">賽事</button>
+        <button id="driver" onclick="showDriverButtons()">車手</button>
+        <button id="insertUser" onclick="showInsertUser()">新增使用者</button>
+        <button class="close-btn" onclick="closelist()">x</button>
+        <div class="content_container">
+            <div class="year-buttons">
+                <ul>
+                    <li><button id="2024" onclick="showResults(2024)">2024</button></li>
+                    <li><button id="2023" onclick="showResults(2023)">2023</button></li>
+                    <li><button id="2022" onclick="showResults(2022)">2022</button></li>
+                    <li><button id="2021" onclick="showResults(2021)">2021</button></li>
+                    <li><button id="2020" onclick="showResults(2020)">2020</button></li>
+                    <li><button id="2019" onclick="showResults(2019)">2019</button></li>
+                    <li><button id="2018" onclick="showResults(2018)">2018</button></li>
+                </ul>
+            </div>
+
+            <div class="driver-buttons">
+                <ul>
+                    <li><button id="1" onclick="showDriver(1)">1</button></li>
+                    <li><button id="2" onclick="showDriver(2)">2</button></li>
+                    <li><button id="3" onclick="showDriver(3)">3</button></li>
+                    <li><button id="4" onclick="showDriver(4)">4</button></li>
+                    <li><button id="5" onclick="showDriver(5)">5</button></li>
+                    <li><button id="6" onclick="showDriver(6)">6</button></li>
+                </ul>
+            </div>
+
+            <table id="resultsTable" border="1">
+                <thead>
+                    <tr>
+                        <th>race_id</th>
+                        <th>circuit_name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Results will be populated here -->
+                </tbody>
+            </table>
+
+            <table id="driverTable" border="1">
+                <thead>
+                    <tr>
+                        <th>driver_id</th>
+                        <th>f_name</th>
+                        <th>l_name</th>
+                        <th>date_of_birth</th>
+                        <th>nationality</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Driver results will be populated here -->
+                </tbody>
+            </table>
+
+            <div class="insert-user" id="insert-user">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+                <form action="/insertUser" method="POST">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password">
+                    <button type="submit">Add New User</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="side_container">
+            <!-- selector -->
+
+            <div class="filter-container">
+                <h3>篩選條件</h3>
+                <form id="filterForm">
+                    <div class="filter-group">
+                        <div id="yearOptions" style="display:none;">
+                            <label>按年份篩選</label>
+                            <label>2024<input type="checkbox" class="yearOption" value="2024" onclick="applyFilters()"></label>
+                            <label>2023<input type="checkbox" class="yearOption" value="2023" onclick="applyFilters()"></label>
+                            <label>2022<input type="checkbox" class="yearOption" value="2022" onclick="applyFilters()"></label>
+                            <label>2021<input type="checkbox" class="yearOption" value="2021" onclick="applyFilters()"></label>
+                            <label>2020<input type="checkbox" class="yearOption" value="2020" onclick="applyFilters()"></label>
+                        </div>
+                    </div>
+            
+                    <div class="filter-group">
+                        <div id="driverOptions" style="display:none;">
+                            <label>按車手篩選</label>
+                            <label>車手1<input type="checkbox" class="driverOption" value="1" onclick="applyFilters()"></label>
+                            <label>車手2<input type="checkbox" class="driverOption" value="2" onclick="applyFilters()"></label>
+                            <label>車手3<input type="checkbox" class="driverOption" value="3" onclick="applyFilters()"></label>
+                            <label>車手4<input type="checkbox" class="driverOption" value="4" onclick="applyFilters()"></label>
+                            <label>車手5<input type="checkbox" class="driverOption" value="5" onclick="applyFilters()"></label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Ranking Table -->
+            <div id="rankingTable">
+                <h3>Current Ranking</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Driver</th>
+                            <th>Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Lewis Hamilton</td>
+                            <td>350</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Max Verstappen</td>
+                            <td>340</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Sergio Perez</td>
+                            <td>330</td>
+                        </tr>
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+        </div> 
+    </div>
+
+    
+    
+</body>
+
+</html>
