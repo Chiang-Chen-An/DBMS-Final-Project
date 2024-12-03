@@ -15,8 +15,8 @@
   - [ ] ranking table 
 - [ ] constructor data profile (not necnssary for every constructor)
 - [ ] driver data profile (not necessary for every driver)
-- [ ] comment board
-  - [ ] comment table (in sql)
+- [x] comment board
+  - [x] comment table (in sql)
 - [ ] CRUD
   - [ ] create new driver
   - [ ] update driver data
