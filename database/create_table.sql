@@ -203,3 +203,11 @@ CREATE TABLE users (
     username VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(64) NOT NULL
 );
+
+-- comments
+CREATE TABLE comments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
