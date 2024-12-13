@@ -1,0 +1,31 @@
+name: Remove .DS_Store Files
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  example-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Remove .DS_Store files
+        run: |
+          find . -name '.DS_Store' -type f -exec rm -f {} +
+
+      - name: Commit and push changes if needed
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add -u
+          git commit -m "Remove .DS_Store files" || echo "No changes to commit"
+          git push https://x-access-token:${{ secrets.PAT_NAME }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
