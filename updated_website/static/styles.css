@@ -104,6 +104,10 @@ button.active {
     font-weight: bold;
 }
 
+.driver-buttons{
+    display: flex;
+}
+
 /* 按鈕容器 */
 .year-buttons ul,
 .driver-buttons ul {
@@ -260,6 +264,7 @@ form input:focus {
 
 #yearOptions input[type="checkbox"], #driverOptions input[type="checkbox"] {
     margin: 0;
+    width: 15px;
 }
 
 .comment-section {

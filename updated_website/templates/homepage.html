@@ -51,6 +51,7 @@
                         row.innerHTML = `
                             <td>${result.race_id}</td>
                             <td>${result.circuit_name}</td>
+                            <td><a href="${result.wiki_url}" target="_blank">url</a></td>
                         `;
                         tbody.appendChild(row);
                     });
@@ -60,6 +61,7 @@
                     const buttons = document.querySelectorAll('.year-buttons button');
                     buttons.forEach(button => button.classList.remove('active'));
                     document.getElementById(year).classList.add('active');
+                    filterResults();
                 });
         }
 
@@ -93,11 +95,13 @@
                             <td>${driver.l_name}</td>
                             <td>${driver.date_of_birth}</td>
                             <td>${driver.nationality}</td>
+                            <td><a href="${driver.wiki_url}" target="_blank">url</a></td>
                         `;
                         tbody.appendChild(row);
                     });
 
                     table.style.display = 'table';
+                    filterResults();
                 });
         }
 
@@ -135,22 +139,78 @@
             const driverOptions = document.getElementById('driverOptions');
             yearOptions.style.display = 'none';
             driverOptions.style.display = 'none';
-            filterResults();
         }
+
+        let currentbutton = 1;
+        const buttonsPerPage = 6;
+        const totalButtons = 212;
+
+        function initializeButtons() {
+            const buttonList = document.getElementById('driver-button-list');
+            buttonList.innerHTML = '';
+
+            for (let i = 1; i <= totalButtons; i++) {
+                const li = document.createElement('li');
+                const button = document.createElement('button');
+                button.id = i;
+                button.innerText = i;
+                button.onclick = () => showDriver(i);
+                li.appendChild(button);
+                buttonList.appendChild(li);
+            }
+
+            showButton(currentbutton);
+        }
+
+        function showButton(page) {
+            if (page < 1 || page > Math.ceil(totalButtons / buttonsPerPage)) {
+                return;
+            }
+
+            console.log(page);
+            currentbutton = page;
+
+            const buttonList = document.getElementById('driver-button-list');
+            const buttons = buttonList.getElementsByTagName('li');
+
+            const startIndex = (currentbutton - 1) * buttonsPerPage;
+            const endIndex = Math.min(startIndex + buttonsPerPage, totalButtons);
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].style.display = 'none';
+            }
+
+            for (let i = startIndex; i < endIndex; i++) {
+                buttons[i].style.display = 'inline-block';
+            }
+
+            document.getElementById('prev-btn').style.display = (currentbutton === 1) ? 'none' : 'inline-block';
+            document.getElementById('next-btn').style.display = (currentbutton === Math.ceil(totalButtons / buttonsPerPage)) ? 'none' : 'inline-block';
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeButtons);
 
         function filterResults() {
             const selectedYears = Array.from(document.querySelectorAll('.yearOption:checked')).map(checkbox => checkbox.value);
             const selectedDrivers = Array.from(document.querySelectorAll('.driverOption:checked')).map(checkbox => checkbox.value);
 
+            // result table filter
             const raceTableRows = document.querySelectorAll('#resultsTable tbody tr');
             raceTableRows.forEach(row => {
-                const year = row.dataset.year;
-                const driver = row.dataset.driver;
+                const match = row.querySelectorAll('td')[1].textContent.trim();
 
-                const yearMatch = selectedYears.length === 0 || selectedYears.includes(year);
-                const driverMatch = selectedDrivers.length === 0 || selectedDrivers.includes(driver);
+                if (selectedYears.length === 0 || selectedYears.includes(match)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
 
-                if (yearMatch && driverMatch) {
+            // driver table filter
+            const driverTableRows = document.querySelectorAll('#driverTable tbody tr');
+            driverTableRows.forEach(row => {
+                const driverId = row.querySelector('td').textContent.trim();
+                if (selectedDrivers.length === 0 || selectedDrivers.includes(driverId)) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
@@ -196,14 +256,10 @@
             </div>
 
             <div class="driver-buttons">
-                <ul>
-                    <li><button id="1" onclick="showDriver(1)">1</button></li>
-                    <li><button id="2" onclick="showDriver(2)">2</button></li>
-                    <li><button id="3" onclick="showDriver(3)">3</button></li>
-                    <li><button id="4" onclick="showDriver(4)">4</button></li>
-                    <li><button id="5" onclick="showDriver(5)">5</button></li>
-                    <li><button id="6" onclick="showDriver(6)">6</button></li>
+                <button id="prev-btn" onclick="showButton(currentbutton - 1)">上一頁</button>
+                <ul id="driver-button-list">
                 </ul>
+                <button id="next-btn" onclick="showButton(currentbutton + 1)">下一頁</button>
             </div>
 
             <table id="resultsTable" border="1">
@@ -211,6 +267,7 @@
                     <tr>
                         <th>race_id</th>
                         <th>circuit_name</th>
+                        <th>link</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -226,6 +283,7 @@
                         <th>l_name</th>
                         <th>date_of_birth</th>
                         <th>nationality</th>
+                        <th>link</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -260,23 +318,21 @@
                 <form id="filterForm">
                     <div class="filter-group">
                         <div id="yearOptions" style="display:none;">
-                            <label>按年份篩選</label>
-                            <label>2024<input type="checkbox" class="yearOption" value="2024" onclick="applyFilters()"></label>
-                            <label>2023<input type="checkbox" class="yearOption" value="2023" onclick="applyFilters()"></label>
-                            <label>2022<input type="checkbox" class="yearOption" value="2022" onclick="applyFilters()"></label>
-                            <label>2021<input type="checkbox" class="yearOption" value="2021" onclick="applyFilters()"></label>
-                            <label>2020<input type="checkbox" class="yearOption" value="2020" onclick="applyFilters()"></label>
+                            <label>按賽事</label>
+                            <label><input type="checkbox" class="yearOption" value="Bahrain Grand Prix" onclick="filterResults()">Bahrain Grand Prix</label>
+                            <label><input type="checkbox" class="yearOption" value="Saudi Arabian Grand Prix" onclick="filterResults()">Saudi Arabian Grand Prix</label>
+                            <label><input type="checkbox" class="yearOption" value="Australian Grand Prix" onclick="filterResults()">Australian Grand Prix</label>
+                            <label><input type="checkbox" class="yearOption" value="Japanese Grand Prix" onclick="filterResults()">Japanese Grand Prix</label>
+                            <label><input type="checkbox" class="yearOption" value="Chinese Grand Prix" onclick="filterResults()">Chinese Grand Prix</label>
                         </div>
                     </div>
             
                     <div class="filter-group">
                         <div id="driverOptions" style="display:none;">
                             <label>按車手篩選</label>
-                            <label>車手1<input type="checkbox" class="driverOption" value="1" onclick="applyFilters()"></label>
-                            <label>車手2<input type="checkbox" class="driverOption" value="2" onclick="applyFilters()"></label>
-                            <label>車手3<input type="checkbox" class="driverOption" value="3" onclick="applyFilters()"></label>
-                            <label>車手4<input type="checkbox" class="driverOption" value="4" onclick="applyFilters()"></label>
-                            <label>車手5<input type="checkbox" class="driverOption" value="5" onclick="applyFilters()"></label>
+                            <label><input type="checkbox" class="driverOption" value="30" onclick="filterResults()">Michael Schumacher</label>
+                            <label><input type="checkbox" class="driverOption" value="1" onclick="filterResults()">Lewis Hamilton</label>
+                            <label><input type="checkbox" class="driverOption" value="20" onclick="filterResults()">Sebastian Vettel</label>
                         </div>
                     </div>
                 </form>
@@ -285,7 +341,7 @@
             <!-- Ranking Table -->
             <div id="rankingTable">
                 <h3>Current Ranking</h3>
-                <table>
+                <table id="rankingTableContent">
                     <thead>
                         <tr>
                             <th>Rank</th>
@@ -294,25 +350,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Lewis Hamilton</td>
-                            <td>350</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Max Verstappen</td>
-                            <td>340</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Sergio Perez</td>
-                            <td>330</td>
-                        </tr>
-                        <!-- Add more rows as needed -->
+                        <!-- show by JavaScript -->
                     </tbody>
                 </table>
             </div>
+            <!-- ranking end -->
         </div> 
 
         <div class="comment-section">

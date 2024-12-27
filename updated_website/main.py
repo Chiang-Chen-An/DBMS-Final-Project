@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, flash, session, jsonify
 import mysql.connector
 import hashlib
+import pandas as pd
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
@@ -98,7 +99,7 @@ def getRace(year):
     db_connection = get_db_connection()
     cursor = db_connection.cursor(dictionary=True)
 
-    cursor.execute('SELECT race_id, circuit_name FROM races WHERE year_of_race = %s', (year,))
+    cursor.execute('SELECT race_id, circuit_name, wiki_url FROM races WHERE year_of_race = %s', (year,))
     races = cursor.fetchall()
 
     cursor.close()
@@ -111,7 +112,14 @@ def getDriver(constructor_id):
     db_connection = get_db_connection()
     cursor = db_connection.cursor(dictionary=True)
 
-    cursor.execute('SELECT driver_id, f_name, l_name, date_of_birth, nationality FROM drivers d JOIN constructorAndDriver cd ON cd.driverID = d.driver_id WHERE cd.constructorID = %s;', (constructor_id,))
+    cursor.execute('SELECT driver_id FROM qualifying WHERE constructor_id = %s;', (constructor_id,))
+    driver_ids = cursor.fetchall()
+    driver_id_list = [driver['driver_id'] for driver in driver_ids]
+    cursor.execute('''
+        SELECT driver_id, f_name, l_name, date_of_birth, nationality, wiki_url
+        FROM drivers 
+        WHERE driver_id IN (%s);
+    ''' % ','.join(['%s'] * len(driver_id_list)), tuple(driver_id_list))
     drivers = cursor.fetchall()
 
     if drivers is None:
@@ -155,6 +163,19 @@ def insertUser():
 
     # GET request: render the homepage
     return render_template('homepage.html')
+
+@app.route('/ranking', methods=['GET'])
+def get_ranking():
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor(dictionary=True)
+
+    cursor.execute('SELECT driver_name, points FROM rankings ORDER BY points DESC')
+    rankings = cursor.fetchall()
+
+    cursor.close()
+    db_connection.close()
+
+    return jsonify(rankings)
 
 @app.route('/add_comment', methods=['POST'])
 def add_comment():
