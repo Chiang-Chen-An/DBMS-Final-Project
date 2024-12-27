@@ -30,7 +30,14 @@
             display: none;
         }
 
+        #map {
+        width: 100%; /* 寬度填滿父容器 */
+        height: 100vh; /* 高度填滿視窗 */
+        }  
     </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-countryselect/dist/leaflet.countryselect.js"></script>
     <script>
         function showYearButtons() {
             document.querySelector('.year-buttons').style.display = 'block';
@@ -381,8 +388,10 @@
                     <input type="date" id="date_of_birth" name="date_of_birth" required><br><br>
                     
                     <label for="nationality">Nationality:</label>
-                    <input type="text" id="nationality" name="nationality" required><br><br>
-                    
+                    <input type="text" id="nationality" name="nationality" required readonly><br><br>
+
+                    <div id="map"></div><br><br>
+
                     <label for="wiki_url">Wikipedia URL:</label>
                     <input type="url" id="wiki_url" name="wiki_url" required><br><br>
                     
@@ -390,6 +399,33 @@
                 </form>
             </div>
             
+            <script>
+                // 初始化地圖
+                var map = L.map('map').setView([23.773, 120.959], 8);
+            
+                // 添加地圖圖層
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+            
+                // 添加比例尺
+                L.control.scale({ position: 'bottomleft' }).addTo(map);
+            
+                // 初始化國家選擇插件
+                var countrySelect = L.countrySelect().addTo(map);
+            
+                countrySelect.on('change', function (e) {
+                    if (e.feature) {
+                        console.log('Selected country:', e.feature.properties.name);
+
+                        // 顯示國家名稱到輸入框
+                        document.getElementById('nationality').value = e.feature.properties.name;
+                    } else {
+                        console.log('No country selected');
+                    }
+                });
+            </script>
+
             <div class="insert-result" id="insert-result">
                 {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
