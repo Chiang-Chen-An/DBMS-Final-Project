@@ -352,24 +352,6 @@
         <button id="insertDriver" onclick="showInsertDriver()">新增賽車手</button>
         <button id="insertResult" onclick="showInsertResult()">新增賽事結果</button>
 	<button id="searchDriver" onclick="showSearchDriver()">搜尋車手</button>
-	<div id="driverSearchContainer" style="display: none; margin-top: 10px;">
-    		<h3>Search for a Driver</h3>
-    		<form onsubmit="event.preventDefault(); searchDriver();">
-	        <label for="driverSearchFirstName">First Name:</label>
-        	<input type="text" id="driverSearchFirstName" placeholder="Enter First Name"><br><br>
-
-        	<label for="driverSearchLastName">Last Name:</label>
-        	<input type="text" id="driverSearchLastName" placeholder="Enter Last Name"><br><br>
-
-        	<label for="driverSearchDOB">Date of Birth:</label>
-        	<input type="date" id="driverSearchDOB"><br><br>
-
-        	<label for="driverSearchNationality">Nationality:</label>
-        	<input type="text" id="driverSearchNationality" placeholder="Enter Nationality"><br><br>
-
-        	<button type="submit">Search</button>
-    		</form>
-	</div>
         <button class="close-btn" onclick="closelist()">x</button>
         <div class="content_container">
             <div class="year-buttons">
@@ -531,6 +513,34 @@
                     <button type="submit">Add Result</button>
                 </form>
             </div>
+
+	    <div class="driverSearchContainer" id="driverSearchContainer">
+    		<h3>Search for a Driver</h3>
+		{% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+    		<form onsubmit="event.preventDefault(); searchDriver();">
+	            <label for="driverSearchFirstName">First Name:</label>
+        	    <input type="text" id="driverSearchFirstName" placeholder="Enter First Name"><br><br>
+
+        	    <label for="driverSearchLastName">Last Name:</label>
+        	    <input type="text" id="driverSearchLastName" placeholder="Enter Last Name"><br><br>
+
+        	    <label for="driverSearchDOB">Date of Birth:</label>
+        	    <input type="date" id="driverSearchDOB"><br><br>
+
+        	    <label for="driverSearchNationality">Nationality:</label>
+        	    <input type="text" id="driverSearchNationality" placeholder="Enter Nationality"><br><br>
+
+        	    <button type="submit">Search</button>
+    		</form>
+	    </div>
         </div>
 
         <div class="side_container">
