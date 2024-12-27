@@ -81,10 +81,11 @@
             document.querySelector('.driver-buttons').style.display = 'block';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'table';
+	    document.getElementById('driverSearchContainer').style.display = 'none';
             document.getElementById('insert-user').style.display = 'none';
             document.getElementById('insert-driver').style.display = 'none';
             document.getElementById('insert-result').style.display = 'none';
-	    document.getElementById('driverSearchContainer').style.display = 'none';
+
 
 
             const yearOptions = document.getElementById('yearOptions');
@@ -126,9 +127,9 @@
             document.getElementById('insert-result').style.display = 'none';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'none';
+	    document.getElementById('driverSearchContainer').style.display = 'none';
             document.querySelector('.year-buttons').style.display = 'none';
             document.querySelector('.driver-buttons').style.display = 'none';
-	    document.getElementById('driverSearchContainer').style.display = 'none';
 
             const yearOptions = document.getElementById('yearOptions');
             const driverOptions = document.getElementById('driverOptions');
@@ -143,9 +144,10 @@
             document.getElementById('insert-result').style.display = 'none';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'none';
+	    document.getElementById('driverSearchContainer').style.display = 'none';
             document.querySelector('.year-buttons').style.display = 'none';
             document.querySelector('.driver-buttons').style.display = 'none';
-	    document.getElementById('driverSearchContainer').style.display = 'none';
+
 
             const yearOptions = document.getElementById('yearOptions');
             const driverOptions = document.getElementById('driverOptions');
@@ -160,9 +162,9 @@
             document.getElementById('insert-result').style.display = 'block';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'none';
+	    document.getElementById('driverSearchContainer').style.display = 'none';
             document.querySelector('.year-buttons').style.display = 'none';
             document.querySelector('.driver-buttons').style.display = 'none';
-	    document.getElementById('driverSearchContainer').style.display = 'none';
 
             const yearOptions = document.getElementById('yearOptions');
             const driverOptions = document.getElementById('driverOptions');
@@ -172,11 +174,19 @@
         }
 
         function showSearchDriver() {
+	    closelist();
+
             document.getElementById('driverSearchContainer').style.display = 'block';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'none';
             document.querySelector('.year-buttons').style.display = 'none';
             document.querySelector('.driver-buttons').style.display = 'none';
+
+            const yearOptions = document.getElementById('yearOptions');
+            const driverOptions = document.getElementById('driverOptions');
+            yearOptions.style.display = 'none';
+            driverOptions.style.display = 'none';
+            filterResults();
         }
 
         function searchDriver() {
@@ -242,6 +252,7 @@
             document.getElementById('insert-user').style.display = 'none';
             document.getElementById('insert-driver').style.display = 'none';
             document.getElementById('insert-result').style.display = 'none';
+	    document.getElementById('driverSearchContainer').style.display = 'none';
 
             const yearOptions = document.getElementById('yearOptions');
             const driverOptions = document.getElementById('driverOptions');
@@ -515,7 +526,6 @@
             </div>
 
 	    <div class="driverSearchContainer" id="driverSearchContainer">
-    		<h3>Search for a Driver</h3>
 		{% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                 <ul class="flashes">
@@ -525,7 +535,7 @@
                 </ul>
                 {% endif %}
                 {% endwith %}
-    		<form onsubmit="event.preventDefault(); searchDriver();">
+    		<form action="/searchDriver" method="POST">
 	            <label for="driverSearchFirstName">First Name:</label>
         	    <input type="text" id="driverSearchFirstName" placeholder="Enter First Name"><br><br>
 
