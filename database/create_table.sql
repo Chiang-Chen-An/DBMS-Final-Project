@@ -12,7 +12,7 @@ create table circuits(
     lat double,
     lng double,
     alt double,
-    wiki_url varchar(100),
+    wiki_url varchar(500),
     primary key (circuits_id)
 );
 
@@ -46,7 +46,7 @@ create table constructors(
     constructor_ref varchar(50),
     constructor_name varchar(50),
     nationality varchar(50),
-    wiki_url varchar(100),
+    wiki_url varchar(500),
     primary key (constructor_id)
 );
 
@@ -73,7 +73,7 @@ create table drivers(
     l_name varchar(50),
     date_of_birth datetime,
     nationality varchar(50),
-    wiki_url varchar(100),
+    wiki_url varchar(500),
     primary key (driver_id)
 );
 
@@ -124,7 +124,7 @@ create table races(
     circuit_name varchar(50),
     race_date date,
     race_time time,
-    wiki_url varchar(100),
+    wiki_url varchar(500),
     fp1_date date,
     fp1_time time,
     fp2_date date,
@@ -164,7 +164,7 @@ create table results(
 -- seasons
 create table seasons(
     year_of_race int,
-    wiki_url varchar(100),
+    wiki_url varchar(500),
     primary key (year_of_race)
 );
 
