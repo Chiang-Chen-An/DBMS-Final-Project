@@ -6,13 +6,13 @@
 
 ## TODO list
 - [x] login/logout/register
-- [ ] homepage
-  - [ ] show data
-  - [ ] link to profile or wiki page route
-  - [ ] conditional selection
+- [x] homepage
+  - [x] show data
+  - [x] link to profile or wiki page route
+  - [x] conditional selection
 - [ ] dynamic ranking
   - [ ] rank data calulator
-  - [ ] ranking table 
+  - [x] ranking table 
 - [ ] constructor data profile (not necnssary for every constructor)
 - [ ] driver data profile (not necessary for every driver)
 - [x] comment board
