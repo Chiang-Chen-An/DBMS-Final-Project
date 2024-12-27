@@ -9,7 +9,7 @@ app.secret_key = "your_secret_key"
 db_config = {
     'host': 'localhost',  # Change this to your MySQL host
     'user': 'root',  # Change this to your MySQL username
-    'password': 'nanacoding.psw',  # Change this to your MySQL password
+    'password': 'Sagiri9498@',  # Change this to your MySQL password
     'database': 'dbms_final'  # Change this to your MySQL database name
 }
 
@@ -132,81 +132,116 @@ def getDriver(constructor_id):
 
     return jsonify(drivers)
 
-@app.route('/insertDriver', methods=['POST'])
+@app.route('/insertDriver', methods=['GET', 'POST'])
 def insertDriver():
-    # 從請求中獲取車手資料
-    new_driver = request.json
-    f_name = new_driver.get('f_name')
-    l_name = new_driver.get('l_name')
-    date_of_birth = new_driver.get('date_of_birth')
-    nationality = new_driver.get('nationality')
-    wiki_url = new_driver.get('wiki_url')
+    if request.method == 'POST':
+        db_connection = get_db_connection()
+        cursor = db_connection.cursor()
 
-    # 檢查必要的資料是否存在
-    if not all([f_name, l_name, date_of_birth, nationality, wiki_url]):
-        return jsonify({"error": "Missing data"}), 400
+        # 檢查是否已登入
+        if 'user' not in session:
+            flash('You must be logged in to insert a driver', 'error')
+            cursor.close()
+            db_connection.close()
+            return redirect('/insertDriver')
 
-    # 連接資料庫並插入新車手資料
-    db_connection = get_db_connection()
-    cursor = db_connection.cursor()
-    try:
-        cursor.execute('''
-            INSERT INTO drivers (f_name, l_name, date_of_birth, nationality, wiki_url)
-            VALUES (%s, %s, %s, %s, %s)
-        ''', (f_name, l_name, date_of_birth, nationality, wiki_url))
-        db_connection.commit()
-    except Exception as e:
-        db_connection.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally:
+        # 從請求中獲取車手資料
+        f_name = request.form.get('f_name')
+        l_name = request.form.get('l_name')
+        date_of_birth = request.form.get('date_of_birth')
+        nationality = request.form.get('nationality')
+        wiki_url = request.form.get('wiki_url')
+
+        # 檢查必要的資料是否存在
+        if not all([f_name, l_name, date_of_birth, nationality, wiki_url]):
+            flash('All fields are required', 'error')
+            cursor.close()
+            db_connection.close()
+            return redirect('/insertDriver')
+
+        # 連接資料庫並插入新車手資料
+        try:
+            cursor.execute('''
+                INSERT INTO drivers (f_name, l_name, date_of_birth, nationality, wiki_url)
+                VALUES (%s, %s, %s, %s, %s)
+            ''', (f_name, l_name, date_of_birth, nationality, wiki_url))
+            db_connection.commit()
+        except Exception as e:
+            db_connection.rollback()
+            flash(f'Error: {str(e)}', 'error')
+            cursor.close()
+            db_connection.close()
+            return redirect('/insertDriver')
+
         cursor.close()
         db_connection.close()
 
-    return jsonify({"message": "Driver added successfully"}), 201
+        flash('Driver inserted successfully', 'success')
+        return redirect('/insertDriver')
 
-@app.route('/insertResult', methods=['POST'])
+    # GET request: render the homepage
+    return render_template('homepage.html')
+
+@app.route('/insertResult', methods=['GET', 'POST'])
 def insertResult():
-    # 從請求中獲取結果資料
-    new_result = request.json
-    race_id = new_result.get('race_id')
-    driver_id = new_result.get('driver_id')
-    constructor_id = new_result.get('constructor_id')
-    car_num = new_result.get('car_num')
-    position_grid = new_result.get('position_grid')
-    position = new_result.get('position')
-    position_text = new_result.get('position_text')
-    position_order = new_result.get('position_order')
-    points = new_result.get('points')
-    laps = new_result.get('laps')
-    time = new_result.get('Time')
-    time_in_milliseconds = new_result.get('time_in_milliseconds')
-    fastest_lap = new_result.get('fastest_lap')
-    rank_of_fastest_lap = new_result.get('rank_of_fastest_lap')
-    fastest_lap_time = new_result.get('fastest_lap_time')
-    fastest_lap_speed = new_result.get('fastest_lap_speed')
-    status_id = new_result.get('status_id')
+    if request.method == 'POST':
+        db_connection = get_db_connection()
+        cursor = db_connection.cursor()
 
-    # 檢查必要的資料是否存在
-    if not all([race_id, driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, time, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id]):
-        return jsonify({"error": "Missing data"}), 400
+        # 檢查是否已登入
+        if 'user' not in session:
+            flash('You must be logged in to insert a result', 'error')
+            cursor.close()
+            db_connection.close()
+            return redirect('/insertResult')
 
-    # 連接資料庫並插入新結果資料
-    db_connection = get_db_connection()
-    cursor = db_connection.cursor()
-    try:
-        cursor.execute('''
-            INSERT INTO results (race_id, driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, `Time`, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ''', (race_id, driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, time, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id))
-        db_connection.commit()
-    except Exception as e:
-        db_connection.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally:
+        # 從請求中獲取結果資料
+        driver_id = request.form.get('driver_id')
+        constructor_id = request.form.get('constructor_id')
+        car_num = request.form.get('car_num')
+        position_grid = request.form.get('position_grid')
+        position = request.form.get('position')
+        position_text = request.form.get('position_text')
+        position_order = request.form.get('position_order')
+        points = request.form.get('points')
+        laps = request.form.get('laps')
+        time = request.form.get('time')
+        time_in_milliseconds = request.form.get('time_in_milliseconds')
+        fastest_lap = request.form.get('fastest_lap')
+        rank_of_fastest_lap = request.form.get('rank_of_fastest_lap')
+        fastest_lap_time = request.form.get('fastest_lap_time')
+        fastest_lap_speed = request.form.get('fastest_lap_speed')
+        status_id = request.form.get('status_id')
+
+        # 檢查必要的資料是否存在
+        if not all([driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, time, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id]):
+            flash('All fields are required', 'error')
+            cursor.close()
+            db_connection.close()
+            return redirect('/insertResult')
+
+        # 連接資料庫並插入新結果資料
+        try:
+            cursor.execute('''
+                INSERT INTO results (driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, `time`, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ''', (driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, time, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id))
+            db_connection.commit()
+        except Exception as e:
+            db_connection.rollback()
+            flash(f'Error: {str(e)}', 'error')
+            cursor.close()
+            db_connection.close()
+            return redirect('/insertResult')
+
         cursor.close()
         db_connection.close()
 
-    return jsonify({"message": "Result added successfully"}), 201
+        flash('Result inserted successfully', 'success')
+        return redirect('/insertResult')
+
+    # GET request: render the homepage
+    return render_template('homepage.html')
 
 @app.route('/insertUser', methods=['GET', 'POST'])
 def insertUser():

@@ -401,9 +401,6 @@
                 {% endif %}
                 {% endwith %}
                 <form action="/insertResult" method="POST">
-                    <label for="race_id">Race ID:</label>
-                    <input type="number" id="race_id" name="race_id" required><br><br>
-                    
                     <label for="driver_id">Driver ID:</label>
                     <input type="number" id="driver_id" name="driver_id" required><br><br>
                     
@@ -475,7 +472,7 @@
             
                     <div class="filter-group">
                         <div id="driverOptions" style="display:none;">
-                            <label>按車手篩選</label>
+                            <label>按賽車手篩選</label>
                             <label><input type="checkbox" class="driverOption" value="30" onclick="filterResults()">Michael Schumacher</label>
                             <label><input type="checkbox" class="driverOption" value="1" onclick="filterResults()">Lewis Hamilton</label>
                             <label><input type="checkbox" class="driverOption" value="20" onclick="filterResults()">Sebastian Vettel</label>
