@@ -132,6 +132,82 @@ def getDriver(constructor_id):
 
     return jsonify(drivers)
 
+@app.route('/insertDriver', methods=['POST'])
+def insertDriver():
+    # 從請求中獲取車手資料
+    new_driver = request.json
+    f_name = new_driver.get('f_name')
+    l_name = new_driver.get('l_name')
+    date_of_birth = new_driver.get('date_of_birth')
+    nationality = new_driver.get('nationality')
+    wiki_url = new_driver.get('wiki_url')
+
+    # 檢查必要的資料是否存在
+    if not all([f_name, l_name, date_of_birth, nationality, wiki_url]):
+        return jsonify({"error": "Missing data"}), 400
+
+    # 連接資料庫並插入新車手資料
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor()
+    try:
+        cursor.execute('''
+            INSERT INTO drivers (f_name, l_name, date_of_birth, nationality, wiki_url)
+            VALUES (%s, %s, %s, %s, %s)
+        ''', (f_name, l_name, date_of_birth, nationality, wiki_url))
+        db_connection.commit()
+    except Exception as e:
+        db_connection.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        db_connection.close()
+
+    return jsonify({"message": "Driver added successfully"}), 201
+
+@app.route('/insertResult', methods=['POST'])
+def insertResult():
+    # 從請求中獲取結果資料
+    new_result = request.json
+    race_id = new_result.get('race_id')
+    driver_id = new_result.get('driver_id')
+    constructor_id = new_result.get('constructor_id')
+    car_num = new_result.get('car_num')
+    position_grid = new_result.get('position_grid')
+    position = new_result.get('position')
+    position_text = new_result.get('position_text')
+    position_order = new_result.get('position_order')
+    points = new_result.get('points')
+    laps = new_result.get('laps')
+    time = new_result.get('Time')
+    time_in_milliseconds = new_result.get('time_in_milliseconds')
+    fastest_lap = new_result.get('fastest_lap')
+    rank_of_fastest_lap = new_result.get('rank_of_fastest_lap')
+    fastest_lap_time = new_result.get('fastest_lap_time')
+    fastest_lap_speed = new_result.get('fastest_lap_speed')
+    status_id = new_result.get('status_id')
+
+    # 檢查必要的資料是否存在
+    if not all([race_id, driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, time, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id]):
+        return jsonify({"error": "Missing data"}), 400
+
+    # 連接資料庫並插入新結果資料
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor()
+    try:
+        cursor.execute('''
+            INSERT INTO results (race_id, driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, `Time`, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (race_id, driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, time, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id))
+        db_connection.commit()
+    except Exception as e:
+        db_connection.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        db_connection.close()
+
+    return jsonify({"message": "Result added successfully"}), 201
+
 @app.route('/insertUser', methods=['GET', 'POST'])
 def insertUser():
     if request.method == 'POST':

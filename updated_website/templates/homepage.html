@@ -22,6 +22,14 @@
             display: none;
         }
 
+        #insert-driver {
+            display: none;
+        }
+
+        #insert-result {
+            display: none;
+        }
+
     </style>
     <script>
         function showYearButtons() {
@@ -30,6 +38,8 @@
             document.getElementById('resultsTable').style.display = 'table';
             document.getElementById('driverTable').style.display = 'none';
             document.getElementById('insert-user').style.display = 'none';
+            document.getElementById('insert-driver').style.display = 'none';
+            document.getElementById('insert-result').style.display = 'none';
 
             const yearOptions = document.getElementById('yearOptions');
             const driverOptions = document.getElementById('driverOptions');
@@ -71,6 +81,8 @@
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'table';
             document.getElementById('insert-user').style.display = 'none';
+            document.getElementById('insert-driver').style.display = 'none';
+            document.getElementById('insert-result').style.display = 'none';
 
             const yearOptions = document.getElementById('yearOptions');
             const driverOptions = document.getElementById('driverOptions');
@@ -107,6 +119,40 @@
 
         function showInsertUser() {
             document.getElementById('insert-user').style.display = 'block';
+            document.getElementById('insert-driver').style.display = 'none';
+            document.getElementById('insert-result').style.display = 'none';
+            document.getElementById('resultsTable').style.display = 'none';
+            document.getElementById('driverTable').style.display = 'none';
+            document.querySelector('.year-buttons').style.display = 'none';
+            document.querySelector('.driver-buttons').style.display = 'none';
+
+            const yearOptions = document.getElementById('yearOptions');
+            const driverOptions = document.getElementById('driverOptions');
+            yearOptions.style.display = 'none';
+            driverOptions.style.display = 'none';
+            filterResults();
+        }
+
+        function showInsertDriver() {
+            document.getElementById('insert-user').style.display = 'none';
+            document.getElementById('insert-driver').style.display = 'block';
+            document.getElementById('insert-result').style.display = 'none';
+            document.getElementById('resultsTable').style.display = 'none';
+            document.getElementById('driverTable').style.display = 'none';
+            document.querySelector('.year-buttons').style.display = 'none';
+            document.querySelector('.driver-buttons').style.display = 'none';
+
+            const yearOptions = document.getElementById('yearOptions');
+            const driverOptions = document.getElementById('driverOptions');
+            yearOptions.style.display = 'none';
+            driverOptions.style.display = 'none';
+            filterResults();
+        }
+
+        function showInsertResult() {
+            document.getElementById('insert-user').style.display = 'none';
+            document.getElementById('insert-driver').style.display = 'none';
+            document.getElementById('insert-result').style.display = 'block';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'none';
             document.querySelector('.year-buttons').style.display = 'none';
@@ -134,6 +180,8 @@
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'none';
             document.getElementById('insert-user').style.display = 'none';
+            document.getElementById('insert-driver').style.display = 'none';
+            document.getElementById('insert-result').style.display = 'none';
 
             const yearOptions = document.getElementById('yearOptions');
             const driverOptions = document.getElementById('driverOptions');
@@ -241,6 +289,8 @@
         <button id="race" onclick="showYearButtons()">賽事</button>
         <button id="driver" onclick="showDriverButtons()">車手</button>
         <button id="insertUser" onclick="showInsertUser()">新增使用者</button>
+        <button id="insertDriver" onclick="showInsertDriver()">新增賽車手</button>
+        <button id="insertResult" onclick="showInsertResult()">新增賽事結果</button>
         <button class="close-btn" onclick="closelist()">x</button>
         <div class="content_container">
             <div class="year-buttons">
@@ -307,6 +357,102 @@
                     <label for="password">Password:</label>
                     <input type="password" id="password" name="password">
                     <button type="submit">Add New User</button>
+                </form>
+            </div>
+
+            <div class="insert-driver" id="insert-driver">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+                <form action="/insertDriver" method="POST">
+                    <label for="f_name">First Name:</label>
+                    <input type="text" id="f_name" name="f_name" required><br><br>
+                    
+                    <label for="l_name">Last Name:</label>
+                    <input type="text" id="l_name" name="l_name" required><br><br>
+                    
+                    <label for="date_of_birth">Date of Birth:</label>
+                    <input type="date" id="date_of_birth" name="date_of_birth" required><br><br>
+                    
+                    <label for="nationality">Nationality:</label>
+                    <input type="text" id="nationality" name="nationality" required><br><br>
+                    
+                    <label for="wiki_url">Wikipedia URL:</label>
+                    <input type="url" id="wiki_url" name="wiki_url" required><br><br>
+                    
+                    <button type="submit">Add Driver</button>
+                </form>
+            </div>
+            
+            <div class="insert-result" id="insert-result">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+                <form action="/insertResult" method="POST">
+                    <label for="race_id">Race ID:</label>
+                    <input type="number" id="race_id" name="race_id" required><br><br>
+                    
+                    <label for="driver_id">Driver ID:</label>
+                    <input type="number" id="driver_id" name="driver_id" required><br><br>
+                    
+                    <label for="constructor_id">Constructor ID:</label>
+                    <input type="number" id="constructor_id" name="constructor_id" required><br><br>
+                    
+                    <label for="car_num">Car Number:</label>
+                    <input type="number" id="car_num" name="car_num" required><br><br>
+                    
+                    <label for="position_grid">Position Grid:</label>
+                    <input type="number" id="position_grid" name="position_grid" required><br><br>
+                    
+                    <label for="position">Position:</label>
+                    <input type="number" id="position" name="position" required><br><br>
+                    
+                    <label for="position_text">Position Text:</label>
+                    <input type="text" id="position_text" name="position_text" required><br><br>
+                    
+                    <label for="position_order">Position Order:</label>
+                    <input type="number" id="position_order" name="position_order" required><br><br>
+                    
+                    <label for="points">Points:</label>
+                    <input type="number" id="points" name="points" required><br><br>
+                    
+                    <label for="laps">Laps:</label>
+                    <input type="number" id="laps" name="laps" required><br><br>
+                    
+                    <label for="time">Time:</label>
+                    <input type="text" id="time" name="time" required><br><br>
+                    
+                    <label for="time_in_milliseconds">Time in Milliseconds:</label>
+                    <input type="number" id="time_in_milliseconds" name="time_in_milliseconds" required><br><br>
+                    
+                    <label for="fastest_lap">Fastest Lap:</label>
+                    <input type="number" id="fastest_lap" name="fastest_lap" required><br><br>
+                    
+                    <label for="rank_of_fastest_lap">Rank of Fastest Lap:</label>
+                    <input type="number" id="rank_of_fastest_lap" name="rank_of_fastest_lap" required><br><br>
+                    
+                    <label for="fastest_lap_time">Fastest Lap Time:</label>
+                    <input type="text" id="fastest_lap_time" name="fastest_lap_time" required><br><br>
+                    
+                    <label for="fastest_lap_speed">Fastest Lap Speed:</label>
+                    <input type="number" id="fastest_lap_speed" name="fastest_lap_speed" required><br><br>
+                    
+                    <label for="status_id">Status ID:</label>
+                    <input type="number" id="status_id" name="status_id" required><br><br>
+                    
+                    <button type="submit">Add Result</button>
                 </form>
             </div>
         </div>
