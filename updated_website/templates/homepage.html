@@ -29,15 +29,7 @@
         #insert-result {
             display: none;
         }
-
-        #map {
-            height: 500px; /* 調整地圖高度 */
-            width: 100%;
-        }
     </style>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-countryselect/dist/leaflet.countryselect.js"></script>
     <script>
         function showYearButtons() {
             document.querySelector('.year-buttons').style.display = 'block';
@@ -460,9 +452,12 @@
                     <input type="date" id="date_of_birth" name="date_of_birth" required><br><br>
                     
                     <label for="nationality">Nationality:</label>
-                    <input type="text" id="nationality" name="nationality" required readonly><br><br>
-                    
-                    <div id="map"></div><br><br>
+                    <select id="nationality" name="nationality" required>
+                        <option value="">Select a country</option>
+                        {% for country in countries %}
+                        <option value="{{ country.nationality }}">{{ country.en_short_name }}</option>
+                        {% endfor %}
+                    </select><br><br>
                     
                     <label for="wiki_url">Wikipedia URL:</label>
                     <input type="url" id="wiki_url" name="wiki_url" required><br><br>
@@ -470,63 +465,6 @@
                     <button type="submit">Add Driver</button>
                 </form>
             </div>
-        
-            <script>
-                var map = L.map('map').setView([23.773, 120.959], 8); // 設定地圖中心和縮放級別
-
-                // 添加 OpenStreetMap 瓦片圖層
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap contributors'
-                }).addTo(map);
-
-                // 使用 leaflet-countryselect 插件
-                var countrySelect = L.countrySelect().addTo(map);
-
-                // 監聽國家選擇事件
-                countrySelect.on('change', function (e) {
-                    console.log('Selected Country:', e.feature.properties.name); // 輸出選中的國家名稱
-
-                    // 高亮選中的國家
-                    var geojsonLayer = e.target;  // 獲取選中的 GeoJSON layer
-                    geojsonLayer.setStyle({
-                        fillColor: '#FF6347',  // 高亮顏色
-                        weight: 2,
-                        opacity: 1,
-                        color: '#FF6347',
-                        fillOpacity: 0.5
-                    });
-                });
-
-                // 處理地圖縮放和移動
-                map.on('zoomend', function() {
-                    map.invalidateSize(); // 重新計算地圖的尺寸
-                });
-
-                // 高亮顯示樣式的事件
-                map.on('mouseover', function(event) {
-                    var layer = event.target;
-                    if (layer instanceof L.Path) {
-                        layer.setStyle({
-                            fillColor: '#FF6347', // 變更顏色
-                            weight: 2,
-                            opacity: 1,
-                            color: '#FF6347',
-                            fillOpacity: 0.5
-                        });
-                    }
-                });
-
-                map.on('mouseout', function(event) {
-                    var layer = event.target;
-                    if (layer instanceof L.Path) {
-                        layer.setStyle({
-                            fillColor: '', // 恢復為原來的顏色
-                            color: '',
-                            weight: 1
-                        });
-                    }
-                });
-            </script>
 
             <div class="insert-result" id="insert-result">
                 {% with messages = get_flashed_messages(with_categories=true) %}

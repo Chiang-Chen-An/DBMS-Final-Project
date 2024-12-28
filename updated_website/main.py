@@ -9,7 +9,7 @@ app.secret_key = "your_secret_key"
 db_config = {
     'host': 'localhost',  # Change this to your MySQL host
     'user': 'root',  # Change this to your MySQL username
-    'password': '792b3967',  # Change this to your MySQL password
+    'password': 'Sagiri9498@',  # Change this to your MySQL password
     'database': 'dbms_final'  # Change this to your MySQL database name
 }
 
@@ -179,8 +179,13 @@ def insertDriver():
         flash('Driver inserted successfully', 'success')
         return redirect('/insertDriver')
 
-    # GET request: render the homepage
-    return render_template('homepage.html')
+    # GET request: 獲取國家列表並渲染模板
+    cursor.execute('SELECT en_short_name, nationality FROM countries')
+    countries = cursor.fetchall()
+    print(countries)  # 調試信息
+    cursor.close()
+    db_connection.close()
+    return render_template('homepage.html', countries=countries)
 
 @app.route('/insertResult', methods=['GET', 'POST'])
 def insertResult():
