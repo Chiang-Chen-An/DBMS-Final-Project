@@ -9,7 +9,7 @@ app.secret_key = "your_secret_key"
 db_config = {
     'host': 'localhost',  # Change this to your MySQL host
     'user': 'root',  # Change this to your MySQL username
-    'password': 'Sagiri9498@',  # Change this to your MySQL password
+    'password': '',  # Change this to your MySQL password
     'database': 'dbms_final'  # Change this to your MySQL database name
 }
 
@@ -29,10 +29,17 @@ def homepage():
     cursor.execute('SELECT username, text, created_at FROM comments ORDER BY created_at DESC LIMIT 5')
     comments = cursor.fetchall()
 
+    try:
+        cursor.execute('SELECT en_short_name, nationality FROM countries ORDER BY en_short_name ASC')
+        countries = cursor.fetchall()
+    except Exception as e:
+        countries = []
+        flash(f'Error retrieving countries: {str(e)}', 'error')
+
     cursor.close()
     db_connection.close()
 
-    return render_template('homepage.html', comments = comments)
+    return render_template('homepage.html', comments = comments, countries=countries)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -112,7 +119,7 @@ def getDriver(constructor_id):
     db_connection = get_db_connection()
     cursor = db_connection.cursor(dictionary=True)
 
-    cursor.execute('SELECT driver_id FROM qualifying WHERE constructor_id = %s;', (constructor_id,))
+    cursor.execute('SELECT driver_id FROM results WHERE constructor_id = %s;', (constructor_id,))
     driver_ids = cursor.fetchall()
     driver_id_list = [driver['driver_id'] for driver in driver_ids]
     cursor.execute('''
@@ -132,60 +139,79 @@ def getDriver(constructor_id):
 
     return jsonify(drivers)
 
+@app.route('/teams', methods=['GET'])
+def get_teams():
+    try:
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 6))
+        offset = (page - 1) * limit
+
+        db_connection = get_db_connection()
+        cursor = db_connection.cursor(dictionary=True)
+
+        # 獲取總數量（用於計算總頁數）
+        cursor.execute('SELECT COUNT(*) AS total FROM constructors')
+        total_count = cursor.fetchone()['total']
+
+        # 獲取當前頁面資料
+        cursor.execute(
+            'SELECT constructor_id, constructor_name FROM constructors LIMIT %s OFFSET %s',
+            (limit, offset)
+        )
+        teams = cursor.fetchall()
+
+        cursor.close()
+        db_connection.close()
+
+        return jsonify({
+            'teams': teams,
+            'total': total_count
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/insertDriver', methods=['GET', 'POST'])
 def insertDriver():
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor()
+
+    # 检查是否已登录
+    if 'user' not in session:
+        flash('You must be logged in to insert a driver', 'error')
+        cursor.close()
+        db_connection.close()
+        return redirect('/insertDriver')
+
     if request.method == 'POST':
-        db_connection = get_db_connection()
-        cursor = db_connection.cursor()
-
-        # 檢查是否已登入
-        if 'user' not in session:
-            flash('You must be logged in to insert a driver', 'error')
-            cursor.close()
-            db_connection.close()
-            return redirect('/insertDriver')
-
-        # 從請求中獲取車手資料
+        # 获取表单数据
         f_name = request.form.get('f_name')
         l_name = request.form.get('l_name')
         date_of_birth = request.form.get('date_of_birth')
         nationality = request.form.get('nationality')
         wiki_url = request.form.get('wiki_url')
 
-        # 檢查必要的資料是否存在
+        # 检查表单数据是否完整
         if not all([f_name, l_name, date_of_birth, nationality, wiki_url]):
             flash('All fields are required', 'error')
-            cursor.close()
-            db_connection.close()
-            return redirect('/insertDriver')
+        else:
+            # 插入新车手数据
+            try:
+                cursor.execute('''
+                    INSERT INTO drivers (f_name, l_name, date_of_birth, nationality, wiki_url)
+                    VALUES (%s, %s, %s, %s, %s)
+                ''', (f_name, l_name, date_of_birth, nationality, wiki_url))
+                db_connection.commit()
+                flash('Driver inserted successfully', 'success')
+            except Exception as e:
+                db_connection.rollback()
+                flash(f'Error: {str(e)}', 'error')
 
-        # 連接資料庫並插入新車手資料
-        try:
-            cursor.execute('''
-                INSERT INTO drivers (f_name, l_name, date_of_birth, nationality, wiki_url)
-                VALUES (%s, %s, %s, %s, %s)
-            ''', (f_name, l_name, date_of_birth, nationality, wiki_url))
-            db_connection.commit()
-        except Exception as e:
-            db_connection.rollback()
-            flash(f'Error: {str(e)}', 'error')
-            cursor.close()
-            db_connection.close()
-            return redirect('/insertDriver')
-
-        cursor.close()
-        db_connection.close()
-
-        flash('Driver inserted successfully', 'success')
-        return redirect('/insertDriver')
-
-    # GET request: 獲取國家列表並渲染模板
-    cursor.execute('SELECT en_short_name, nationality FROM countries')
-    countries = cursor.fetchall()
-    print(countries)  # 調試信息
     cursor.close()
     db_connection.close()
-    return render_template('homepage.html', countries=countries)
+    return render_template('homepage.html')
+
+    
 
 @app.route('/insertResult', methods=['GET', 'POST'])
 def insertResult():

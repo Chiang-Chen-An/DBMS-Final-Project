@@ -279,7 +279,7 @@
             }, 3000); // 3 seconds
         });
 
-        function closelist(){   
+        function closelist() {
             document.querySelector('.year-buttons').style.display = 'none';
             document.querySelector('.driver-buttons').style.display = 'none';
             document.getElementById('resultsTable').style.display = 'none';
@@ -295,54 +295,72 @@
             driverOptions.style.display = 'none';
         }
 
-        let currentbutton = 1;
-        const buttonsPerPage = 6;
-        const totalButtons = 212;
+        let currentPage = 1;
+        const buttonsPerPage = 6; // 每頁顯示的按鈕數量
 
-        function initializeButtons() {
-            const buttonList = document.getElementById('driver-button-list');
-            buttonList.innerHTML = '';
+        function loadDrivers(page) {
+            fetch(`/teams?page=${page}&limit=${buttonsPerPage}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Error fetching teams:', data.error);
+                        return;
+                    }
 
-            for (let i = 1; i <= totalButtons; i++) {
-                const li = document.createElement('li');
-                const button = document.createElement('button');
-                button.id = i;
-                button.innerText = i;
-                button.onclick = () => showDriver(i);
-                li.appendChild(button);
-                buttonList.appendChild(li);
-            }
+                    const { teams, total } = data;
+                    const totalPages = Math.ceil(total / buttonsPerPage);
 
-            showButton(currentbutton);
+                    // 清空當前按鈕列表
+                    const buttonList = document.getElementById('driver-button-list');
+                    buttonList.innerHTML = '';
+
+                    // 動態生成按鈕
+                    teams.forEach(team => {
+                        const li = document.createElement('li');
+                        const button = document.createElement('button');
+                        button.id = team.constructor_id;
+                        button.innerText = team.constructor_name;
+                        button.onclick = () => showDriver(team.constructor_id);
+                        li.appendChild(button);
+                        buttonList.appendChild(li);
+                    });
+
+                    // 更新分頁按鈕狀態
+                    updatePaginationControls(page, totalPages);
+                })
+                .catch(error => console.error('Error fetching teams:', error));
         }
 
-        function showButton(page) {
-            if (page < 1 || page > Math.ceil(totalButtons / buttonsPerPage)) {
-                return;
+        function updatePaginationControls(page, totalPages) {
+            const prevButton = document.getElementById('prev-btn');
+            const nextButton = document.getElementById('next-btn');
+
+            // 動態設置上一頁按鈕
+            if (page > 1) {
+                prevButton.style.display = 'inline-block';
+                prevButton.onclick = () => loadDrivers(page - 1);
+            } else {
+                prevButton.style.display = 'none';
             }
 
-            console.log(page);
-            currentbutton = page;
-
-            const buttonList = document.getElementById('driver-button-list');
-            const buttons = buttonList.getElementsByTagName('li');
-
-            const startIndex = (currentbutton - 1) * buttonsPerPage;
-            const endIndex = Math.min(startIndex + buttonsPerPage, totalButtons);
-
-            for (let i = 0; i < buttons.length; i++) {
-                buttons[i].style.display = 'none';
+            // 動態設置下一頁按鈕
+            if (page < totalPages) {
+                nextButton.style.display = 'inline-block';
+                nextButton.onclick = () => loadDrivers(page + 1);
+            } else {
+                nextButton.style.display = 'none';
             }
-
-            for (let i = startIndex; i < endIndex; i++) {
-                buttons[i].style.display = 'inline-block';
-            }
-
-            document.getElementById('prev-btn').style.display = (currentbutton === 1) ? 'none' : 'inline-block';
-            document.getElementById('next-btn').style.display = (currentbutton === Math.ceil(totalButtons / buttonsPerPage)) ? 'none' : 'inline-block';
         }
 
-        document.addEventListener('DOMContentLoaded', initializeButtons);
+        // function showDriver(teamId) {
+        //     console.log(`Displaying drivers for team ID: ${teamId}`);
+        //     // 在這裡添加顯示車手的邏輯
+        // }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDrivers(currentPage);
+        });
+
 
         function filterResults() {
             const selectedYears = Array.from(document.querySelectorAll('.yearOption:checked')).map(checkbox => checkbox.value);
@@ -413,11 +431,11 @@
             </div>
 
             <div class="driver-buttons">
-                <button id="prev-btn" onclick="showButton(currentbutton - 1)">上一頁</button>
-                <ul id="driver-button-list">
-                </ul>
-                <button id="next-btn" onclick="showButton(currentbutton + 1)">下一頁</button>
+                <button id="prev-btn" style="display: none;">上一頁</button>
+                <ul id="driver-button-list"></ul>
+                <button id="next-btn" style="display: none;">下一頁</button>
             </div>
+
 
             <table id="resultsTable" border="1">
                 <thead>
@@ -480,15 +498,16 @@
                 <form action="/insertDriver" method="POST">
                     <label for="f_name">First Name:</label>
                     <input type="text" id="f_name" name="f_name" required><br><br>
-                    
+
                     <label for="l_name">Last Name:</label>
                     <input type="text" id="l_name" name="l_name" required><br><br>
-                    
+
                     <label for="date_of_birth">Date of Birth:</label>
                     <input type="date" id="date_of_birth" name="date_of_birth" required><br><br>
-                    
+
                     <label for="nationality">Nationality:</label>
                     <select id="nationality" name="nationality" required>
+                        <pre>{{ countries }}</pre>
                         <option value="">Select a country</option>
                         {% for country in countries %}
                         <option value="{{ country.nationality }}">{{ country.en_short_name }}</option>
@@ -497,7 +516,7 @@
                     
                     <label for="wiki_url">Wikipedia URL:</label>
                     <input type="url" id="wiki_url" name="wiki_url" required><br><br>
-                    
+
                     <button type="submit">Add Driver</button>
                 </form>
             </div>
@@ -515,52 +534,52 @@
                 <form action="/insertResult" method="POST">
                     <label for="driver_id">Driver ID:</label>
                     <input type="number" id="driver_id" name="driver_id" required><br><br>
-                    
+
                     <label for="constructor_id">Constructor ID:</label>
                     <input type="number" id="constructor_id" name="constructor_id" required><br><br>
-                    
+
                     <label for="car_num">Car Number:</label>
                     <input type="number" id="car_num" name="car_num" required><br><br>
-                    
+
                     <label for="position_grid">Position Grid:</label>
                     <input type="number" id="position_grid" name="position_grid" required><br><br>
-                    
+
                     <label for="position">Position:</label>
                     <input type="number" id="position" name="position" required><br><br>
-                    
+
                     <label for="position_text">Position Text:</label>
                     <input type="text" id="position_text" name="position_text" required><br><br>
-                    
+
                     <label for="position_order">Position Order:</label>
                     <input type="number" id="position_order" name="position_order" required><br><br>
-                    
+
                     <label for="points">Points:</label>
                     <input type="number" id="points" name="points" required><br><br>
-                    
+
                     <label for="laps">Laps:</label>
                     <input type="number" id="laps" name="laps" required><br><br>
-                    
+
                     <label for="time">Time:</label>
                     <input type="text" id="time" name="time" required><br><br>
-                    
+
                     <label for="time_in_milliseconds">Time in Milliseconds:</label>
                     <input type="number" id="time_in_milliseconds" name="time_in_milliseconds" required><br><br>
-                    
+
                     <label for="fastest_lap">Fastest Lap:</label>
                     <input type="number" id="fastest_lap" name="fastest_lap" required><br><br>
-                    
+
                     <label for="rank_of_fastest_lap">Rank of Fastest Lap:</label>
                     <input type="number" id="rank_of_fastest_lap" name="rank_of_fastest_lap" required><br><br>
-                    
+
                     <label for="fastest_lap_time">Fastest Lap Time:</label>
                     <input type="text" id="fastest_lap_time" name="fastest_lap_time" required><br><br>
-                    
+
                     <label for="fastest_lap_speed">Fastest Lap Speed:</label>
                     <input type="number" id="fastest_lap_speed" name="fastest_lap_speed" required><br><br>
-                    
+
                     <label for="status_id">Status ID:</label>
                     <input type="number" id="status_id" name="status_id" required><br><br>
-                    
+
                     <button type="submit">Add Result</button>
                 </form>
             </div>
@@ -586,7 +605,12 @@
                     <input type="date" id="driverSearchDOB"><br><br>
 
                     <label for="driverSearchNationality">Nationality:</label>
-                    <input type="text" id="driverSearchNationality" placeholder="Enter Nationality"><br><br>
+                    <select id="driverSearchNationality" name="driverSearchNationality" required>
+                        <option value="">Select a country</option>
+                        {% for country in countries %}
+                        <option value="{{ country.nationality }}">{{ country.en_short_name }}</option>
+                        {% endfor %}
+                    </select><br><br>
 
                     <button type="submit">Search</button>
                 </form>
@@ -601,20 +625,28 @@
                     <div class="filter-group">
                         <div id="yearOptions" style="display:none;">
                             <label>按賽事</label>
-                            <label><input type="checkbox" class="yearOption" value="Bahrain Grand Prix" onclick="filterResults()">Bahrain Grand Prix</label>
-                            <label><input type="checkbox" class="yearOption" value="Saudi Arabian Grand Prix" onclick="filterResults()">Saudi Arabian Grand Prix</label>
-                            <label><input type="checkbox" class="yearOption" value="Australian Grand Prix" onclick="filterResults()">Australian Grand Prix</label>
-                            <label><input type="checkbox" class="yearOption" value="Japanese Grand Prix" onclick="filterResults()">Japanese Grand Prix</label>
-                            <label><input type="checkbox" class="yearOption" value="Chinese Grand Prix" onclick="filterResults()">Chinese Grand Prix</label>
+                            <label><input type="checkbox" class="yearOption" value="Bahrain Grand Prix"
+                                    onclick="filterResults()">Bahrain Grand Prix</label>
+                            <label><input type="checkbox" class="yearOption" value="Saudi Arabian Grand Prix"
+                                    onclick="filterResults()">Saudi Arabian Grand Prix</label>
+                            <label><input type="checkbox" class="yearOption" value="Australian Grand Prix"
+                                    onclick="filterResults()">Australian Grand Prix</label>
+                            <label><input type="checkbox" class="yearOption" value="Japanese Grand Prix"
+                                    onclick="filterResults()">Japanese Grand Prix</label>
+                            <label><input type="checkbox" class="yearOption" value="Chinese Grand Prix"
+                                    onclick="filterResults()">Chinese Grand Prix</label>
                         </div>
                     </div>
-            
+
                     <div class="filter-group">
                         <div id="driverOptions" style="display:none;">
                             <label>按賽車手篩選</label>
-                            <label><input type="checkbox" class="driverOption" value="30" onclick="filterResults()">Michael Schumacher</label>
-                            <label><input type="checkbox" class="driverOption" value="1" onclick="filterResults()">Lewis Hamilton</label>
-                            <label><input type="checkbox" class="driverOption" value="20" onclick="filterResults()">Sebastian Vettel</label>
+                            <label><input type="checkbox" class="driverOption" value="30"
+                                    onclick="filterResults()">Michael Schumacher</label>
+                            <label><input type="checkbox" class="driverOption" value="1" onclick="filterResults()">Lewis
+                                Hamilton</label>
+                            <label><input type="checkbox" class="driverOption" value="20"
+                                    onclick="filterResults()">Sebastian Vettel</label>
                         </div>
                     </div>
                 </form>
@@ -637,7 +669,7 @@
                 </table>
             </div>
             <!-- ranking end -->
-        </div> 
+        </div>
 
         <div class="comment-section">
             <h3>留言區</h3>
@@ -645,17 +677,18 @@
                 <textarea name="comment" id="commentText" placeholder="请输入您的留言..." required></textarea>
                 <button type="submit">留言</button>
             </form>
-        
+
             <h4>最新訊息：</h4>
             <ul id="commentList">
                 {% for comment in comments %}
-                    <li><strong>{{ comment.username }}:</strong> {{ comment.text }} &nbsp&nbsp&nbsp&nbsp&nbsp -- {{ comment.created_at }}</li>
+                <li><strong>{{ comment.username }}:</strong> {{ comment.text }} &nbsp&nbsp&nbsp&nbsp&nbsp -- {{
+                    comment.created_at }}</li>
                 {% endfor %}
             </ul>
-        </div>  
+        </div>
 
     </div>
-    
+
 </body>
 
 </html>
