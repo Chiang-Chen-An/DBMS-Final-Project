@@ -9,7 +9,7 @@ app.secret_key = "your_secret_key"
 db_config = {
     'host': 'localhost',  # Change this to your MySQL host
     'user': 'root',  # Change this to your MySQL username
-    'password': 'Sagiri9498@',  # Change this to your MySQL password
+    'password': '792b3967',  # Change this to your MySQL password
     'database': 'dbms_final'  # Change this to your MySQL database name
 }
 
@@ -274,6 +274,51 @@ def insertUser():
 
     # GET request: render the homepage
     return render_template('homepage.html')
+
+@app.route('/searchDriver', methods=['GET'])
+def searchDriver():
+    # Get the query parameters
+    f_name = request.args.get('f_name', '').strip().lower()
+    l_name = request.args.get('l_name', '').strip().lower()
+    date_of_birth = request.args.get('date_of_birth', '').strip()
+    nationality = request.args.get('nationality', '').strip().lower()
+
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor(dictionary=True)
+
+    try:
+        # Build the dynamic query
+        query = """
+            SELECT driver_id, f_name, l_name, date_of_birth, nationality, wiki_url
+            FROM drivers
+            WHERE TRUE
+        """
+        params = []
+
+        # Add conditions based on the parameters provided
+        if f_name:
+            query += " AND LOWER(f_name) LIKE %s"
+            params.append(f"%{f_name}%")
+        if l_name:
+            query += " AND LOWER(l_name) LIKE %s"
+            params.append(f"%{l_name}%")
+        if date_of_birth:
+            query += " AND date_of_birth = %s"
+            params.append(date_of_birth)
+        if nationality:
+            query += " AND LOWER(nationality) LIKE %s"
+            params.append(f"%{nationality}%")
+
+        # Execute the query
+        cursor.execute(query, tuple(params))
+        drivers = cursor.fetchall()
+
+        return jsonify(drivers)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        db_connection.close()
 
 @app.route('/ranking', methods=['GET'])
 def get_ranking():

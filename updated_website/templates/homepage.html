@@ -35,9 +35,6 @@
             width: 100%;
         }
     </style>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-countryselect/dist/leaflet.countryselect.js"></script>
     <script>
         function showYearButtons() {
             document.querySelector('.year-buttons').style.display = 'block';
@@ -47,6 +44,7 @@
             document.getElementById('insert-user').style.display = 'none';
             document.getElementById('insert-driver').style.display = 'none';
             document.getElementById('insert-result').style.display = 'none';
+	    document.getElementById('driverSearchContainer').style.display = 'none';
 
             const yearOptions = document.getElementById('yearOptions');
             const driverOptions = document.getElementById('driverOptions');
@@ -87,9 +85,12 @@
             document.querySelector('.driver-buttons').style.display = 'block';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'table';
+	    document.getElementById('driverSearchContainer').style.display = 'none';
             document.getElementById('insert-user').style.display = 'none';
             document.getElementById('insert-driver').style.display = 'none';
             document.getElementById('insert-result').style.display = 'none';
+
+
 
             const yearOptions = document.getElementById('yearOptions');
             const driverOptions = document.getElementById('driverOptions');
@@ -130,6 +131,7 @@
             document.getElementById('insert-result').style.display = 'none';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'none';
+	    document.getElementById('driverSearchContainer').style.display = 'none';
             document.querySelector('.year-buttons').style.display = 'none';
             document.querySelector('.driver-buttons').style.display = 'none';
 
@@ -146,8 +148,10 @@
             document.getElementById('insert-result').style.display = 'none';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'none';
+	    document.getElementById('driverSearchContainer').style.display = 'none';
             document.querySelector('.year-buttons').style.display = 'none';
             document.querySelector('.driver-buttons').style.display = 'none';
+
 
             const yearOptions = document.getElementById('yearOptions');
             const driverOptions = document.getElementById('driverOptions');
@@ -162,6 +166,7 @@
             document.getElementById('insert-result').style.display = 'block';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'none';
+	    document.getElementById('driverSearchContainer').style.display = 'none';
             document.querySelector('.year-buttons').style.display = 'none';
             document.querySelector('.driver-buttons').style.display = 'none';
 
@@ -171,6 +176,68 @@
             driverOptions.style.display = 'none';
             filterResults();
         }
+
+        function showSearchDriver() {
+	    closelist();
+
+            document.getElementById('driverSearchContainer').style.display = 'block';
+            document.getElementById('resultsTable').style.display = 'none';
+            document.getElementById('driverTable').style.display = 'none';
+            document.querySelector('.year-buttons').style.display = 'none';
+            document.querySelector('.driver-buttons').style.display = 'none';
+
+            const yearOptions = document.getElementById('yearOptions');
+            const driverOptions = document.getElementById('driverOptions');
+            yearOptions.style.display = 'none';
+            driverOptions.style.display = 'none';
+            filterResults();
+        }
+
+        function searchDriver() {
+            const f_name = document.getElementById('driverSearchFirstName').value.trim();
+            const l_name = document.getElementById('driverSearchLastName').value.trim();
+            const date_of_birth = document.getElementById('driverSearchDOB').value.trim();
+            const nationality = document.getElementById('driverSearchNationality').value.trim();
+
+            const query = new URLSearchParams({
+                f_name,
+                l_name,
+                date_of_birth,
+                nationality
+            }).toString();
+
+            fetch(`/searchDriver?${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('driverTable');
+                    const tbody = table.querySelector('tbody');
+                    tbody.innerHTML = ''; // Clear previous results
+
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6">無結果</td></tr>';
+                    }
+		    else {
+                        data.forEach(driver => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${driver.driver_id}</td>
+                                <td>${driver.f_name}</td>
+                                <td>${driver.l_name}</td>
+                                <td>${driver.date_of_birth}</td>
+                                <td>${driver.nationality}</td>
+                                <td><a href="${driver.wiki_url}" target="_blank">url</a></td>
+				<td><button onclick="deleteDriver(${driver.driver_id})">Delete</button></td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+
+                table.style.display = 'table';
+                })
+                .catch(error => {
+                    console.error('Error fetching search results:', error);
+                });
+    	}
 
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function () {
@@ -189,6 +256,7 @@
             document.getElementById('insert-user').style.display = 'none';
             document.getElementById('insert-driver').style.display = 'none';
             document.getElementById('insert-result').style.display = 'none';
+	    document.getElementById('driverSearchContainer').style.display = 'none';
 
             const yearOptions = document.getElementById('yearOptions');
             const driverOptions = document.getElementById('driverOptions');
@@ -298,6 +366,7 @@
         <button id="insertUser" onclick="showInsertUser()">新增使用者</button>
         <button id="insertDriver" onclick="showInsertDriver()">新增賽車手</button>
         <button id="insertResult" onclick="showInsertResult()">新增賽事結果</button>
+	<button id="searchDriver" onclick="showSearchDriver()">搜尋車手</button>
         <button class="close-btn" onclick="closelist()">x</button>
         <div class="content_container">
             <div class="year-buttons">
@@ -518,6 +587,33 @@
                     <button type="submit">Add Result</button>
                 </form>
             </div>
+
+	    <div class="driverSearchContainer" id="driverSearchContainer">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+    		<form action="/searchDriver" method="POST">
+	            <label for="driverSearchFirstName">First Name:</label>
+        	    <input type="text" id="driverSearchFirstName" placeholder="Enter First Name"><br><br>
+
+        	    <label for="driverSearchLastName">Last Name:</label>
+        	    <input type="text" id="driverSearchLastName" placeholder="Enter Last Name"><br><br>
+
+        	    <label for="driverSearchDOB">Date of Birth:</label>
+        	    <input type="date" id="driverSearchDOB"><br><br>
+
+        	    <label for="driverSearchNationality">Nationality:</label>
+        	    <input type="text" id="driverSearchNationality" placeholder="Enter Nationality"><br><br>
+
+        	    <button type="submit">Search</button>
+    		</form>
+	    </div>
         </div>
 
         <div class="side_container">
