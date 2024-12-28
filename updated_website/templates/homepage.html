@@ -39,7 +39,7 @@
             document.getElementById('insert-user').style.display = 'none';
             document.getElementById('insert-driver').style.display = 'none';
             document.getElementById('insert-result').style.display = 'none';
-	    document.getElementById('driverSearchContainer').style.display = 'none';
+            document.getElementById('driverSearchContainer').style.display = 'none';
 
             const yearOptions = document.getElementById('yearOptions');
             const driverOptions = document.getElementById('driverOptions');
@@ -80,7 +80,7 @@
             document.querySelector('.driver-buttons').style.display = 'block';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'table';
-	    document.getElementById('driverSearchContainer').style.display = 'none';
+            document.getElementById('driverSearchContainer').style.display = 'none';
             document.getElementById('insert-user').style.display = 'none';
             document.getElementById('insert-driver').style.display = 'none';
             document.getElementById('insert-result').style.display = 'none';
@@ -126,7 +126,7 @@
             document.getElementById('insert-result').style.display = 'none';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'none';
-	    document.getElementById('driverSearchContainer').style.display = 'none';
+            document.getElementById('driverSearchContainer').style.display = 'none';
             document.querySelector('.year-buttons').style.display = 'none';
             document.querySelector('.driver-buttons').style.display = 'none';
 
@@ -143,7 +143,7 @@
             document.getElementById('insert-result').style.display = 'none';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'none';
-	    document.getElementById('driverSearchContainer').style.display = 'none';
+            document.getElementById('driverSearchContainer').style.display = 'none';
             document.querySelector('.year-buttons').style.display = 'none';
             document.querySelector('.driver-buttons').style.display = 'none';
 
@@ -161,7 +161,7 @@
             document.getElementById('insert-result').style.display = 'block';
             document.getElementById('resultsTable').style.display = 'none';
             document.getElementById('driverTable').style.display = 'none';
-	    document.getElementById('driverSearchContainer').style.display = 'none';
+            document.getElementById('driverSearchContainer').style.display = 'none';
             document.querySelector('.year-buttons').style.display = 'none';
             document.querySelector('.driver-buttons').style.display = 'none';
 
@@ -173,7 +173,7 @@
         }
 
         function showSearchDriver() {
-	    closelist();
+            closelist();
 
             document.getElementById('driverSearchContainer').style.display = 'block';
             document.getElementById('resultsTable').style.display = 'none';
@@ -205,13 +205,24 @@
                 .then(response => response.json())
                 .then(data => {
                     const table = document.getElementById('driverTable');
+                    const thead = table.querySelector('thead');
                     const tbody = table.querySelector('tbody');
-                    tbody.innerHTML = ''; // Clear previous results
 
-                    if (data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="6">無結果</td></tr>';
+                    // Clear previous results
+                    tbody.innerHTML = '';
+
+                    // Add "Actions" column if it doesn't exist
+                    if (!thead.querySelector('.actions-column')) {
+                        const actionsHeader = document.createElement('th');
+                        actionsHeader.classList.add('actions-column');
+                        actionsHeader.textContent = 'Actions';
+                        thead.querySelector('tr').appendChild(actionsHeader);
                     }
-		    else {
+
+                    // Populate the table body
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7">No results found</td></tr>';
+                    } else {
                         data.forEach(driver => {
                             const row = document.createElement('tr');
                             row.innerHTML = `
@@ -221,18 +232,43 @@
                                 <td>${driver.date_of_birth}</td>
                                 <td>${driver.nationality}</td>
                                 <td><a href="${driver.wiki_url}" target="_blank">url</a></td>
-				<td><button onclick="deleteDriver(${driver.driver_id})">Delete</button></td>
+                                <td><button onclick="deleteDriver(${driver.driver_id})">Delete</button></td>
                             `;
                             tbody.appendChild(row);
                         });
                     }
 
-                table.style.display = 'table';
+                    // Show the table
+                    table.style.display = 'table';
                 })
                 .catch(error => {
                     console.error('Error fetching search results:', error);
                 });
-    	}
+    }
+
+
+        function deleteDriver(driver_id) {
+            if (!confirm('Are you sure you want to delete this driver?')) {
+                return;
+            }
+
+            fetch(`/deleteDriver/${driver_id}`, {
+                method: 'POST',
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Driver deleted successfully!');
+                        searchDriver(); // Refresh the search results
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting driver:', error);
+                    alert('An error occurred while deleting the driver.');
+                });
+        }
 
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function () {
@@ -251,7 +287,7 @@
             document.getElementById('insert-user').style.display = 'none';
             document.getElementById('insert-driver').style.display = 'none';
             document.getElementById('insert-result').style.display = 'none';
-	    document.getElementById('driverSearchContainer').style.display = 'none';
+            document.getElementById('driverSearchContainer').style.display = 'none';
 
             const yearOptions = document.getElementById('yearOptions');
             const driverOptions = document.getElementById('driverOptions');
@@ -361,7 +397,7 @@
         <button id="insertUser" onclick="showInsertUser()">新增使用者</button>
         <button id="insertDriver" onclick="showInsertDriver()">新增賽車手</button>
         <button id="insertResult" onclick="showInsertResult()">新增賽事結果</button>
-	<button id="searchDriver" onclick="showSearchDriver()">搜尋車手</button>
+        <button id="searchDriver" onclick="showSearchDriver()">搜尋車手</button>
         <button class="close-btn" onclick="closelist()">x</button>
         <div class="content_container">
             <div class="year-buttons">
@@ -399,12 +435,12 @@
             <table id="driverTable" border="1">
                 <thead>
                     <tr>
-                        <th>driver_id</th>
-                        <th>f_name</th>
-                        <th>l_name</th>
-                        <th>date_of_birth</th>
-                        <th>nationality</th>
-                        <th>link</th>
+                        <th>Driver ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Date of Birth</th>
+                        <th>Nationality</th>
+                        <th>Link</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -529,8 +565,8 @@
                 </form>
             </div>
 
-	    <div class="driverSearchContainer" id="driverSearchContainer">
-		{% with messages = get_flashed_messages(with_categories=true) %}
+            <div class="driverSearchContainer" id="driverSearchContainer">
+                {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                 <ul class="flashes">
                     {% for category, message in messages %}
@@ -539,22 +575,22 @@
                 </ul>
                 {% endif %}
                 {% endwith %}
-    		<form action="/searchDriver" method="POST">
-	            <label for="driverSearchFirstName">First Name:</label>
-        	    <input type="text" id="driverSearchFirstName" placeholder="Enter First Name"><br><br>
+                <form onsubmit="event.preventDefault(); searchDriver();">
+                    <label for="driverSearchFirstName">First Name:</label>
+                    <input type="text" id="driverSearchFirstName" placeholder="Enter First Name"><br><br>
 
-        	    <label for="driverSearchLastName">Last Name:</label>
-        	    <input type="text" id="driverSearchLastName" placeholder="Enter Last Name"><br><br>
+                    <label for="driverSearchLastName">Last Name:</label>
+                    <input type="text" id="driverSearchLastName" placeholder="Enter Last Name"><br><br>
 
-        	    <label for="driverSearchDOB">Date of Birth:</label>
-        	    <input type="date" id="driverSearchDOB"><br><br>
+                    <label for="driverSearchDOB">Date of Birth:</label>
+                    <input type="date" id="driverSearchDOB"><br><br>
 
-        	    <label for="driverSearchNationality">Nationality:</label>
-        	    <input type="text" id="driverSearchNationality" placeholder="Enter Nationality"><br><br>
+                    <label for="driverSearchNationality">Nationality:</label>
+                    <input type="text" id="driverSearchNationality" placeholder="Enter Nationality"><br><br>
 
-        	    <button type="submit">Search</button>
-    		</form>
-	    </div>
+                    <button type="submit">Search</button>
+                </form>
+            </div>
         </div>
 
         <div class="side_container">
