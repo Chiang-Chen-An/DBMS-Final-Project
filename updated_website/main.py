@@ -9,7 +9,7 @@ app.secret_key = "your_secret_key"
 db_config = {
     'host': 'localhost',  # Change this to your MySQL host
     'user': 'root',  # Change this to your MySQL username
-    'password': '792b3967',  # Change this to your MySQL password
+    'password': '03020302',  # Change this to your MySQL password
     'database': 'dbms_final'  # Change this to your MySQL database name
 }
 
@@ -112,7 +112,7 @@ def getDriver(constructor_id):
     db_connection = get_db_connection()
     cursor = db_connection.cursor(dictionary=True)
 
-    cursor.execute('SELECT driver_id FROM qualifying WHERE constructor_id = %s;', (constructor_id,))
+    cursor.execute('SELECT driver_id FROM results WHERE constructor_id = %s;', (constructor_id,))
     driver_ids = cursor.fetchall()
     driver_id_list = [driver['driver_id'] for driver in driver_ids]
     cursor.execute('''
@@ -131,6 +131,38 @@ def getDriver(constructor_id):
     db_connection.close()
 
     return jsonify(drivers)
+
+@app.route('/teams', methods=['GET'])
+def get_teams():
+    try:
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 6))
+        offset = (page - 1) * limit
+
+        db_connection = get_db_connection()
+        cursor = db_connection.cursor(dictionary=True)
+
+        # 獲取總數量（用於計算總頁數）
+        cursor.execute('SELECT COUNT(*) AS total FROM constructors')
+        total_count = cursor.fetchone()['total']
+
+        # 獲取當前頁面資料
+        cursor.execute(
+            'SELECT constructor_id, constructor_name FROM constructors LIMIT %s OFFSET %s',
+            (limit, offset)
+        )
+        teams = cursor.fetchall()
+
+        cursor.close()
+        db_connection.close()
+
+        return jsonify({
+            'teams': teams,
+            'total': total_count
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/insertDriver', methods=['GET', 'POST'])
 def insertDriver():
