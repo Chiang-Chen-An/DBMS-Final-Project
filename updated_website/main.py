@@ -320,6 +320,30 @@ def searchDriver():
         cursor.close()
         db_connection.close()
 
+@app.route('/deleteDriver/<int:driver_id>', methods=['POST'])
+def deleteDriver(driver_id):
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor()
+
+    try:
+        # Check if the driver exists
+        cursor.execute('SELECT * FROM drivers WHERE driver_id = %s', (driver_id,))
+        driver = cursor.fetchone()
+
+        if driver:
+            # Delete the driver if they exist
+            cursor.execute('DELETE FROM drivers WHERE driver_id = %s', (driver_id,))
+            db_connection.commit()
+            return jsonify({"success": True, "message": "Driver deleted successfully"})
+        else:
+            return jsonify({"success": False, "message": "Driver not found"}), 404
+    except Exception as e:
+        db_connection.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        db_connection.close()
+
 @app.route('/ranking', methods=['GET'])
 def get_ranking():
     db_connection = get_db_connection()

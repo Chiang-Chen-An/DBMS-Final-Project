@@ -197,8 +197,6 @@
         }
 
         function searchDriver() {
-            closelist();
-
             const f_name = document.getElementById('driverSearchFirstName').value.trim();
             const l_name = document.getElementById('driverSearchLastName').value.trim();
             const date_of_birth = document.getElementById('driverSearchDOB').value.trim();
@@ -215,11 +213,23 @@
                 .then(response => response.json())
                 .then(data => {
                     const table = document.getElementById('driverTable');
+                    const thead = table.querySelector('thead');
                     const tbody = table.querySelector('tbody');
-                    tbody.innerHTML = ''; // Clear previous results
 
+                    // Clear previous results
+                    tbody.innerHTML = '';
+
+                    // Add "Actions" column if it doesn't exist
+                    if (!thead.querySelector('.actions-column')) {
+                        const actionsHeader = document.createElement('th');
+                        actionsHeader.classList.add('actions-column');
+                        actionsHeader.textContent = 'Actions';
+                        thead.querySelector('tr').appendChild(actionsHeader);
+                    }
+
+                    // Populate the table body
                     if (data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="6">無結果</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="7">No results found</td></tr>';
                     } else {
                         data.forEach(driver => {
                             const row = document.createElement('tr');
@@ -230,15 +240,41 @@
                                 <td>${driver.date_of_birth}</td>
                                 <td>${driver.nationality}</td>
                                 <td><a href="${driver.wiki_url}" target="_blank">url</a></td>
+                                <td><button onclick="deleteDriver(${driver.driver_id})">Delete</button></td>
                             `;
                             tbody.appendChild(row);
                         });
                     }
 
+                    // Show the table
                     table.style.display = 'table';
                 })
                 .catch(error => {
                     console.error('Error fetching search results:', error);
+                });
+    }
+
+
+        function deleteDriver(driver_id) {
+            if (!confirm('Are you sure you want to delete this driver?')) {
+                return;
+            }
+
+            fetch(`/deleteDriver/${driver_id}`, {
+                method: 'POST',
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Driver deleted successfully!');
+                        searchDriver(); // Refresh the search results
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting driver:', error);
+                    alert('An error occurred while deleting the driver.');
                 });
         }
 
@@ -407,12 +443,12 @@
             <table id="driverTable" border="1">
                 <thead>
                     <tr>
-                        <th>driver_id</th>
-                        <th>f_name</th>
-                        <th>l_name</th>
-                        <th>date_of_birth</th>
-                        <th>nationality</th>
-                        <th>link</th>
+                        <th>Driver ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Date of Birth</th>
+                        <th>Nationality</th>
+                        <th>Link</th>
                     </tr>
                 </thead>
                 <tbody>
