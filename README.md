@@ -18,7 +18,7 @@
 - [x] comment board
   - [x] comment table (in sql)
 - [ ] CRUD
-  - [ ] create new driver
-  - [ ] update driver data
-  - [ ] delete driver data
+  - [x] create new driver
+  - [x] update driver data
+  - [x] delete driver data
   - ranking should be updated after every modification 
