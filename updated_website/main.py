@@ -188,7 +188,7 @@ def get_teams():
 @app.route('/insertDriver', methods=['GET', 'POST'])
 def insertDriver():
     db_connection = get_db_connection()
-    cursor = db_connection.cursor()
+    cursor = db_connection.cursor(dictionary=True, buffered=True)
 
     # 检查是否已登录
     if 'user' not in session:
@@ -199,6 +199,14 @@ def insertDriver():
 
     if request.method == 'POST':
         # 获取表单数据
+        cursor.execute('SELECT driver_id AS max_id FROM drivers ORDER BY max_id DESC LIMIT 1')
+        max_id = cursor.fetchone()['max_id']
+        driver_id = max_id+1
+        for i in range(max_id):
+            cursor.execute('SELECT driver_id FROM drivers WHERE driver_id = %s;',(i,))
+            if cursor.rowcount == 0:
+                driver_id = i
+                break;
         f_name = request.form.get('f_name')
         l_name = request.form.get('l_name')
         date_of_birth = request.form.get('date_of_birth')
@@ -212,9 +220,9 @@ def insertDriver():
             # 插入新车手数据
             try:
                 cursor.execute('''
-                    INSERT INTO drivers (f_name, l_name, date_of_birth, nationality, wiki_url)
-                    VALUES (%s, %s, %s, %s, %s)
-                ''', (f_name, l_name, date_of_birth, nationality, wiki_url))
+                    INSERT INTO drivers (driver_id, f_name, l_name, date_of_birth, nationality, wiki_url)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                ''', (driver_id, f_name, l_name, date_of_birth, nationality, wiki_url))
                 db_connection.commit()
                 flash('Driver inserted successfully', 'success')
             except Exception as e:
