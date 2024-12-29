@@ -232,7 +232,10 @@
                                 <td>${driver.date_of_birth}</td>
                                 <td>${driver.nationality}</td>
                                 <td><a href="${driver.wiki_url}" target="_blank">url</a></td>
-                                <td><button onclick="deleteDriver(${driver.driver_id})">Delete</button></td>
+                                <td>
+                                    <button onclick="deleteDriver(${driver.driver_id})">Delete</button>
+                                    <button onclick='modifyDriver(${JSON.stringify(driver)})'>Modify</button>
+                                </td>
                             `;
                             tbody.appendChild(row);
                         });
@@ -244,7 +247,7 @@
                 .catch(error => {
                     console.error('Error fetching search results:', error);
                 });
-    }
+        }
 
 
         function deleteDriver(driver_id) {
@@ -267,6 +270,33 @@
                 .catch(error => {
                     console.error('Error deleting driver:', error);
                     alert('An error occurred while deleting the driver.');
+                });
+        }
+
+        function modifyDriver(driver_id, driver_data) {
+            if (!confirm('Are you sure you want to modify this driver?')) {
+                return;
+            }
+
+            fetch(`/modifyDriver/${driver_id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(driver_data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Driver modified successfully!');
+                        searchDriver(); // Refresh the search results
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error modifying driver:', error);
+                    alert('An error occurred while modifying the driver.');
                 });
         }
 

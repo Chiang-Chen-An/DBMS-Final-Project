@@ -41,6 +41,20 @@ def homepage():
 
     return render_template('homepage.html', comments = comments, countries=countries)
 
+@app.context_processor
+def inject_countries():
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor(dictionary=True)
+    try:
+        cursor.execute('SELECT en_short_name, nationality FROM countries ORDER BY en_short_name ASC')
+        countries = cursor.fetchall()
+    except Exception as e:
+        countries = []
+        flash(f'Error retrieving countries: {str(e)}', 'error')
+    cursor.close()
+    db_connection.close()
+    return dict(countries=countries)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -211,7 +225,51 @@ def insertDriver():
     db_connection.close()
     return render_template('homepage.html')
 
-    
+@app.route('/modifyDriver/<int:driver_id>', methods=['POST'])
+def modifyDriver(driver_id):
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor()
+
+    # 檢查是否已登錄
+    if 'user' not in session:
+        flash('You must be logged in to modify a driver', 'error')
+        cursor.close()
+        db_connection.close()
+        return redirect('/')
+
+    # 獲取請求中的 JSON 數據
+    driver_data = request.get_json()
+    f_name = driver_data.get('f_name')
+    l_name = driver_data.get('l_name')
+    date_of_birth = driver_data.get('date_of_birth')
+    nationality = driver_data.get('nationality')
+    wiki_url = driver_data.get('wiki_url')
+
+    # 檢查數據是否完整
+    if not all([f_name, l_name, date_of_birth, nationality, wiki_url]):
+        flash('All fields are required', 'error')
+        cursor.close()
+        db_connection.close()
+        return jsonify({'success': False, 'message': 'All fields are required'})
+
+    # 更新司機資料
+    try:
+        cursor.execute('''
+            UPDATE drivers
+            SET f_name = %s, l_name = %s, date_of_birth = %s, nationality = %s, wiki_url = %s
+            WHERE id = %s
+        ''', (f_name, l_name, date_of_birth, nationality, wiki_url, driver_id))
+        db_connection.commit()
+        flash('Driver modified successfully', 'success')
+        response = {'success': True}
+    except Exception as e:
+        db_connection.rollback()
+        flash(f'Error: {str(e)}', 'error')
+        response = {'success': False, 'message': str(e)}
+
+    cursor.close()
+    db_connection.close()
+    return jsonify(response)
 
 @app.route('/insertResult', methods=['GET', 'POST'])
 def insertResult():

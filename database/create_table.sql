@@ -65,7 +65,7 @@ create table driver_standings(
 
 -- drivers
 create table drivers(
-    driver_id int default 0,
+    driver_id int NOT NULL AUTO_INCREMENT,
     driver_ref varchar(50),
     driver_number int,
     code varchar(3),
