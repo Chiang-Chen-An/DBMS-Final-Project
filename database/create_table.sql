@@ -1,6 +1,6 @@
 -- \N means no data in csv
 -- use drop table when necessary
--- DROP TABLE circuits, constructors, constructor_results, constructor_standings, drivers, driver_standings, lap_times, pit_stops, qualifying, races, results, seaons, sprint_results, status;
+-- DROP TABLE circuits, constructors, constructor_results, constructor_standings, drivers, driver_standings, lap_times, pit_stops, qualifying, races, results, seasons, sprint_results, status, users, comments, countries;
 
 -- circuits
 create table circuits(
