@@ -573,7 +573,8 @@
                         <option value="{{ country.nationality }}">{{ country.en_short_name }}</option>
                         {% endfor %}
                     </select><br><br>
-                    
+
+
                     <label for="wiki_url">Wikipedia URL:</label>
                     <input type="url" id="wiki_url" name="wiki_url" required><br><br>
 
@@ -732,13 +733,19 @@
         </div>
 
         <div class="comment-section">
-            <h3>留言區</h3>
+            <h3>Comment Section</h3>
             <form id="commentForm" method="POST" action="/add_comment">
-                <textarea name="comment" id="commentText" placeholder="请输入您的留言..." required></textarea>
-                <button type="submit">留言</button>
+                <textarea name="comment" id="commentText" placeholder="Type your comment here..." required></textarea>
+                <button type="submit">Comment</button>
             </form>
+            <style>
+                #commentText {
+                    width: 90%;
+                    resize: none;
+                }
+            </style>
 
-            <h4>最新訊息：</h4>
+            <h4>Latest comments:</h4>
             <ul id="commentList">
                 {% for comment in comments %}
                 <li><strong>{{ comment.username }}:</strong> {{ comment.text }} &nbsp&nbsp&nbsp&nbsp&nbsp -- {{
