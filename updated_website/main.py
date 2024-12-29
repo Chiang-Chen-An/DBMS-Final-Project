@@ -9,7 +9,7 @@ app.secret_key = "your_secret_key"
 db_config = {
     'host': 'localhost',  # Change this to your MySQL host
     'user': 'root',  # Change this to your MySQL username
-    'password': '',  # Change this to your MySQL password
+    'password': '792b3967',  # Change this to your MySQL password
     'database': 'dbms_final'  # Change this to your MySQL database name
 }
 
@@ -225,52 +225,6 @@ def insertDriver():
     db_connection.close()
     return render_template('homepage.html')
 
-@app.route('/modifyDriver/<int:driver_id>', methods=['POST'])
-def modifyDriver(driver_id):
-    db_connection = get_db_connection()
-    cursor = db_connection.cursor()
-
-    # 檢查是否已登錄
-    if 'user' not in session:
-        flash('You must be logged in to modify a driver', 'error')
-        cursor.close()
-        db_connection.close()
-        return redirect('/')
-
-    # 獲取請求中的 JSON 數據
-    driver_data = request.get_json()
-    f_name = driver_data.get('f_name')
-    l_name = driver_data.get('l_name')
-    date_of_birth = driver_data.get('date_of_birth')
-    nationality = driver_data.get('nationality')
-    wiki_url = driver_data.get('wiki_url')
-
-    # 檢查數據是否完整
-    if not all([f_name, l_name, date_of_birth, nationality, wiki_url]):
-        flash('All fields are required', 'error')
-        cursor.close()
-        db_connection.close()
-        return jsonify({'success': False, 'message': 'All fields are required'})
-
-    # 更新司機資料
-    try:
-        cursor.execute('''
-            UPDATE drivers
-            SET f_name = %s, l_name = %s, date_of_birth = %s, nationality = %s, wiki_url = %s
-            WHERE id = %s
-        ''', (f_name, l_name, date_of_birth, nationality, wiki_url, driver_id))
-        db_connection.commit()
-        flash('Driver modified successfully', 'success')
-        response = {'success': True}
-    except Exception as e:
-        db_connection.rollback()
-        flash(f'Error: {str(e)}', 'error')
-        response = {'success': False, 'message': str(e)}
-
-    cursor.close()
-    db_connection.close()
-    return jsonify(response)
-
 @app.route('/insertResult', methods=['GET', 'POST'])
 def insertResult():
     if request.method == 'POST':
@@ -409,26 +363,106 @@ def searchDriver():
         cursor.close()
         db_connection.close()
 
+@app.route('/inspectDriver/<int:driver_id>', methods=['GET', 'POST'])
+def inspectDriver(driver_id):
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor(dictionary=True)
+
+    cursor.execute('SELECT * FROM drivers WHERE driver_id = %s', (driver_id,))
+    driver = cursor.fetchone()
+
+    cursor.close()
+
+    if not driver:
+        flash('Driver not found', 'error')
+        return redirect('/')
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'delete':
+            try:
+                cursor = db_connection.cursor()
+                cursor.execute('DELETE FROM drivers WHERE driver_id = %s', (driver_id,))
+                db_connection.commit()
+                flash('Driver deleted successfully', 'success')
+                return redirect('/')
+            except Exception as e:
+                db_connection.rollback()
+                flash(f'Error: {str(e)}', 'error')
+            finally:
+                cursor.close()
+        elif action == 'modify':
+            # Get form data
+            f_name = request.form.get('f_name')
+            l_name = request.form.get('l_name')
+            date_of_birth = request.form.get('date_of_birth')  # Use as a string
+            nationality = request.form.get('nationality')
+            wiki_url = request.form.get('wiki_url')
+
+            # Validate form data
+            if not all([f_name, l_name, date_of_birth, nationality, wiki_url]):
+                flash('All fields are required', 'error')
+            else:
+                try:
+                    cursor = db_connection.cursor()
+                    cursor.execute('''
+                        UPDATE drivers
+                        SET f_name = %s, l_name = %s, date_of_birth = %s, nationality = %s, wiki_url = %s
+                        WHERE driver_id = %s
+                    ''', (f_name, l_name, date_of_birth, nationality, wiki_url, driver_id))
+                    db_connection.commit()
+                    flash('Driver updated successfully', 'success')
+                except Exception as e:
+                    db_connection.rollback()
+                    flash(f'Error: {str(e)}', 'error')
+                finally:
+                    return redirect('/')
+                    cursor.close()
+        elif action == 'back':
+            return redirect('/')
+
+
+    return render_template('inspect_driver.html', driver=driver)
+
 @app.route('/deleteDriver/<int:driver_id>', methods=['POST'])
 def deleteDriver(driver_id):
     db_connection = get_db_connection()
     cursor = db_connection.cursor()
 
     try:
-        # Check if the driver exists
-        cursor.execute('SELECT * FROM drivers WHERE driver_id = %s', (driver_id,))
-        driver = cursor.fetchone()
-
-        if driver:
-            # Delete the driver if they exist
-            cursor.execute('DELETE FROM drivers WHERE driver_id = %s', (driver_id,))
-            db_connection.commit()
-            return jsonify({"success": True, "message": "Driver deleted successfully"})
-        else:
-            return jsonify({"success": False, "message": "Driver not found"}), 404
+        cursor.execute('DELETE FROM drivers WHERE driver_id = %s', (driver_id,))
+        db_connection.commit()
+        return jsonify({'success': True})
     except Exception as e:
         db_connection.rollback()
-        return jsonify({"success": False, "message": str(e)}), 500
+        return jsonify({'success': False, 'message': str(e)})
+    finally:
+        cursor.close()
+        db_connection.close()
+
+@app.route('/modifyDriver/<int:driver_id>', methods=['POST'])
+def modifyDriver(driver_id):
+    driver_data = request.get_json()
+    f_name = driver_data.get('f_name')
+    l_name = driver_data.get('l_name')
+    date_of_birth = driver_data.get('date_of_birth')
+    nationality = driver_data.get('nationality')
+    wiki_url = driver_data.get('wiki_url')
+
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor()
+
+    try:
+        cursor.execute('''
+            UPDATE drivers
+            SET f_name = %s, l_name = %s, date_of_birth = %s, nationality = %s, wiki_url = %s
+            WHERE driver_id = %s
+        ''', (f_name, l_name, date_of_birth, nationality, wiki_url, driver_id))
+        db_connection.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db_connection.rollback()
+        return jsonify({'success': False, 'message': str(e)})
     finally:
         cursor.close()
         db_connection.close()

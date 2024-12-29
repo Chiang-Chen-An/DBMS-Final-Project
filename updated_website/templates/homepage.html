@@ -233,8 +233,7 @@
                                 <td>${driver.nationality}</td>
                                 <td><a href="${driver.wiki_url}" target="_blank">url</a></td>
                                 <td>
-                                    <button onclick="deleteDriver(${driver.driver_id})">Delete</button>
-                                    <button onclick='modifyDriver(${JSON.stringify(driver)})'>Modify</button>
+                                    <button onclick="inspectDriver(${driver.driver_id})">Inspect</button>
                                 </td>
                             `;
                             tbody.appendChild(row);
@@ -250,14 +249,63 @@
         }
 
 
+        function editDriver(driver_id) {
+            // Show the editing form for the selected driver row
+            const row = document.querySelector(`#driver-row-${driver_id}`);
+            const cells = row.querySelectorAll('td');
+            row.innerHTML = `
+                <td>${driver_id}</td>
+                <td><input type="text" value="${cells[1].innerText}" id="edit-fname-${driver_id}"></td>
+                <td><input type="text" value="${cells[2].innerText}" id="edit-lname-${driver_id}"></td>
+                <td><input type="date" value="${cells[3].innerText}" id="edit-dob-${driver_id}"></td>
+                <td><input type="text" value="${cells[4].innerText}" id="edit-nationality-${driver_id}"></td>
+                <td><input type="url" value="${cells[5].querySelector('a').href}" id="edit-wiki-${driver_id}"></td>
+                <td>
+                    <button onclick="saveDriver(${driver_id})">Save</button>
+                    <button onclick="cancelEdit(${driver_id}, ${JSON.stringify([...cells].map(cell => cell.innerText))})">Cancel</button>
+                </td>
+            `;
+        }
+
+        function saveDriver(driver_id) {
+            const updatedData = {
+                f_name: document.querySelector(`#edit-fname-${driver_id}`).value,
+                l_name: document.querySelector(`#edit-lname-${driver_id}`).value,
+                date_of_birth: document.querySelector(`#edit-dob-${driver_id}`).value,
+                nationality: document.querySelector(`#edit-nationality-${driver_id}`).value,
+                wiki_url: document.querySelector(`#edit-wiki-${driver_id}`).value,
+            };
+
+            fetch(`/modifyDriver/${driver_id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Driver updated successfully!');
+                        searchDriver(); // Refresh the search results
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating driver:', error);
+                    alert('An error occurred while updating the driver.');
+                });
+        }
+
+        function inspectDriver(driver_id) {
+            window.location.href = `/inspectDriver/${driver_id}`;
+        }
+
         function deleteDriver(driver_id) {
             if (!confirm('Are you sure you want to delete this driver?')) {
                 return;
             }
 
-            fetch(`/deleteDriver/${driver_id}`, {
-                method: 'POST',
-            })
+            fetch(`/deleteDriver/${driver_id}`, { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -273,41 +321,21 @@
                 });
         }
 
-        function modifyDriver(driver_id, driver_data) {
-            if (!confirm('Are you sure you want to modify this driver?')) {
-                return;
-            }
-
-            fetch(`/modifyDriver/${driver_id}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(driver_data)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Driver modified successfully!');
-                        searchDriver(); // Refresh the search results
-                    } else {
-                        alert(`Error: ${data.message}`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error modifying driver:', error);
-                    alert('An error occurred while modifying the driver.');
-                });
+        function cancelEdit(driver_id, originalData) {
+            const row = document.querySelector(`#driver-row-${driver_id}`);
+            row.innerHTML = `
+                <td>${driver_id}</td>
+                <td>${originalData[1]}</td>
+                <td>${originalData[2]}</td>
+                <td>${originalData[3]}</td>
+                <td>${originalData[4]}</td>
+                <td><a href="${originalData[5]}" target="_blank">url</a></td>
+                <td>
+                    <button onclick="editDriver(${driver_id})">Edit</button>
+                    <button onclick="deleteDriver(${driver_id})">Delete</button>
+                </td>
+            `;
         }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(function () {
-                const flashes = document.querySelectorAll('.flashes li');
-                flashes.forEach(flash => {
-                    flash.style.display = 'none';
-                });
-            }, 3000); // 3 seconds
-        });
 
         function closelist() {
             document.querySelector('.year-buttons').style.display = 'none';
@@ -635,7 +663,7 @@
                     <input type="date" id="driverSearchDOB"><br><br>
 
                     <label for="driverSearchNationality">Nationality:</label>
-                    <select id="driverSearchNationality" name="driverSearchNationality" required>
+                    <select id="driverSearchNationality" name="driverSearchNationality">
                         <option value="">Select a country</option>
                         {% for country in countries %}
                         <option value="{{ country.nationality }}">{{ country.en_short_name }}</option>

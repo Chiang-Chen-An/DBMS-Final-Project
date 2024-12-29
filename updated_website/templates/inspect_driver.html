@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='source/favicon.ico') }}">
+    <title>Inspect Driver</title>
+</head>
+<body>
+    <div class="content">
+        <!-- Header Section -->
+        <div class="header">
+            <h1 class="website-title">
+                <img src="{{ url_for('static', filename='source/f1icon.png') }}" alt="F1 Icon" class="title-icon">
+                F1 Race - Inspect Driver
+            </h1>
+            <div class="auth-buttons">
+                {% if 'user' in session %}
+                <h2>Welcome! {{ session['user']['username'] }}</h2>
+                <button id="logout" onclick="window.location.href='/logout'">Logout</button>
+                {% else %}
+                <button id="login" onclick="window.location.href='/login'">Login</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="navigation">
+            <button onclick="window.location.href='/'">Home</button>
+            <button onclick="window.location.href='/searchDriver'">Search Drivers</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <h2>Inspect Driver</h2>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="f_name">First Name:</label>
+                    <input type="text" id="f_name" name="f_name" value="{{ driver['f_name'] }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="l_name">Last Name:</label>
+                    <input type="text" id="l_name" name="l_name" value="{{ driver['l_name'] }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="date_of_birth">Date of Birth:</label>
+                    {% set date_string = driver['date_of_birth'].strftime('%Y-%m-%d') %}
+                    {% set parts = date_string.split('-') %}
+                    <input type="date" id="date_of_birth" name="date_of_birth" value="{{ parts[0] }}-{{ parts[1] }}-{{ parts[2] }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="nationality">Nationality:</label>
+                    <input type="text" id="nationality" name="nationality" value="{{ driver['nationality'] }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="wiki_url">Wikipedia URL:</label>
+                    <input type="url" id="wiki_url" name="wiki_url" value="{{ driver['wiki_url'] }}" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" name="action" value="back">Back</button>
+                    <button type="submit" name="action" value="modify">Modify</button>
+                    <button type="submit" name="action" value="delete">Delete</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="footer">
+            <p>&copy; 2024 F1 Race Results. All Rights Reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
