@@ -13,7 +13,7 @@
         <div class="header">
             <h1 class="website-title">
                 <img src="{{ url_for('static', filename='source/f1icon.png') }}" alt="F1 Icon" class="title-icon">
-                F1 Race - Inspect Driver
+                F1 Race
             </h1>
             <div class="auth-buttons">
                 {% if 'user' in session %}
@@ -28,7 +28,6 @@
         <!-- Navigation Buttons -->
         <div class="navigation">
             <button onclick="window.location.href='/'">Home</button>
-            <button onclick="window.location.href='/searchDriver'">Search Drivers</button>
         </div>
 
         <!-- Main Content -->
@@ -49,10 +48,23 @@
                     {% set parts = date_string.split('-') %}
                     <input type="date" id="date_of_birth" name="date_of_birth" value="{{ parts[0] }}-{{ parts[1] }}-{{ parts[2] }}" required>
                 </div>
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label for="nationality">Nationality:</label>
                     <input type="text" id="nationality" name="nationality" value="{{ driver['nationality'] }}" required>
+                </div> -->
+
+                <div class="form-group">
+                    <label for="nationality">Nationality:</label>
+                    <select id="nationality" name="nationality" required>
+                        {% for country in countries %}
+                            <option value="{{ country.nationality }}" 
+                                    {% if country.nationality == driver['nationality'] %} selected {% endif %}>
+                                {{ country.en_short_name }}
+                            </option>
+                        {% endfor %}
+                    </select><br><br>
                 </div>
+
                 <div class="form-group">
                     <label for="wiki_url">Wikipedia URL:</label>
                     <input type="url" id="wiki_url" name="wiki_url" value="{{ driver['wiki_url'] }}" required>

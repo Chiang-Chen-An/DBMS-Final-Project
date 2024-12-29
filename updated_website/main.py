@@ -427,6 +427,14 @@ def inspectDriver(driver_id):
                     return redirect('/')
                     cursor.close()
         elif action == 'back':
+            try:
+                pass
+            except Exception as e:
+                db_connection.rollback()
+                flash(f'Error: {str(e)}', 'error')
+            finally:
+                return redirect('/')
+                cursor.close()
             return redirect('/')
 
 
