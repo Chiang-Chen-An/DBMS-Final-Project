@@ -460,21 +460,23 @@
             <div class="auth-buttons">
                 {% if 'user' in session %}
                 <h2>Welcome! {{ session['user']['username'] }}</h2>
-                <button id="logout" onclick="window.location.href='/logout'">登出</button>
+                <button id="logout" onclick="window.location.href='/logout'">Logout</button>
                 {% else %}
-                <button id="login" onclick="window.location.href='/login'">登入</button>
+                <button id="login" onclick="window.location.href='/login'">Login</button>
                 {% endif %}
             </div>
         </div>
 
 
-        <button id="race" onclick="showYearButtons()">賽事</button>
-        <button id="driver" onclick="showDriverButtons()">車手</button>
-        <button id="insertUser" onclick="showInsertUser()">新增使用者</button>
-        <button id="insertDriver" onclick="showInsertDriver()">新增賽車手</button>
-        <button id="insertResult" onclick="showInsertResult()">新增賽事結果</button>
-        <button id="searchDriver" onclick="showSearchDriver()">搜尋車手</button>
+        <button id="race" onclick="showYearButtons()">Races</button>
+        <button id="driver" onclick="showDriverButtons()">Drivers</button>
+        <button id="insertUser" onclick="showInsertUser()">Add User</button>
+        <button id="insertResult" onclick="showInsertResult()">Add Results</button>
+        <button id="insertDriver" onclick="showInsertDriver()">Add Drivers</button>
+        <button id="searchDriver" onclick="showSearchDriver()">Search Drivers</button>
         <button class="close-btn" onclick="closelist()">x</button>
+        <style>.close-btn {margin-left: 7px; margin-top: 4px;}
+        </style>
         <div class="content_container">
             <div class="year-buttons">
                 <ul>
@@ -489,9 +491,9 @@
             </div>
 
             <div class="driver-buttons">
-                <button id="prev-btn" style="display: none;">上一頁</button>
+                <button id="prev-btn" style="display: none;">Next Page</button>
                 <ul id="driver-button-list"></ul>
-                <button id="next-btn" style="display: none;">下一頁</button>
+                <button id="next-btn" style="display: none;">Last Page</button>
             </div>
 
 
