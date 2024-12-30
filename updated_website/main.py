@@ -9,7 +9,7 @@ app.secret_key = "your_secret_key"
 db_config = {
     'host': 'localhost',  # Change this to your MySQL host
     'user': 'root',  # Change this to your MySQL username
-    'password': '03020302',  # Change this to your MySQL password
+    'password': 'Sagiri9498@',  # Change this to your MySQL password
     'database': 'dbms_final'  # Change this to your MySQL database name
 }
 
@@ -54,6 +54,20 @@ def inject_countries():
     cursor.close()
     db_connection.close()
     return dict(countries=countries)
+
+@app.context_processor
+def inject_drivers():
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor(dictionary=True)
+    try:
+        cursor.execute('SELECT driver_id, f_name, l_name FROM drivers ORDER BY f_name ASC')
+        drivers = cursor.fetchall()
+    except Exception as e:
+        drivers = []
+        flash(f'Error retrieving drivers: {str(e)}', 'error')
+    cursor.close()
+    db_connection.close()
+    return dict(drivers=drivers)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -247,6 +261,7 @@ def insertResult():
             return redirect('/insertResult')
 
         # 從請求中獲取結果資料
+        race_id = request.form.get('race_id')
         driver_id = request.form.get('driver_id')
         constructor_id = request.form.get('constructor_id')
         car_num = request.form.get('car_num')
@@ -265,7 +280,7 @@ def insertResult():
         status_id = request.form.get('status_id')
 
         # 檢查必要的資料是否存在
-        if not all([driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, time, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id]):
+        if not all([race_id, driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, time, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id]):
             flash('All fields are required', 'error')
             cursor.close()
             db_connection.close()
@@ -274,9 +289,9 @@ def insertResult():
         # 連接資料庫並插入新結果資料
         try:
             cursor.execute('''
-                INSERT INTO results (driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, `time`, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ''', (driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, time, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id))
+                INSERT INTO results (race_id, driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, `time`, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ''', (race_id, driver_id, constructor_id, car_num, position_grid, position, position_text, position_order, points, laps, time, time_in_milliseconds, fastest_lap, rank_of_fastest_lap, fastest_lap_time, fastest_lap_speed, status_id))
             db_connection.commit()
         except Exception as e:
             db_connection.rollback()
