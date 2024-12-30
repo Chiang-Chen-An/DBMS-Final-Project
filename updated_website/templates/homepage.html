@@ -648,6 +648,9 @@
                 {% endif %}
                 {% endwith %}
                 <form action="/insertResult" method="POST">
+                    <label for="race_id">Race ID:</label>
+                    <input type="number" id="race_id" name="race_id" required><br><br>
+
                     <label for="driver_id">Driver ID:</label>
                     <input type="number" id="driver_id" name="driver_id" required><br><br>
 
@@ -757,12 +760,11 @@
                     <div class="filter-group">
                         <div id="driverOptions" style="display:none;">
                             <label>By Drivers</label>
-                            <label><input type="checkbox" class="driverOption" value="30"
-                                    onclick="filterResults()">Michael Schumacher</label>
-                            <label><input type="checkbox" class="driverOption" value="1" onclick="filterResults()">Lewis
-                                Hamilton</label>
-                            <label><input type="checkbox" class="driverOption" value="20"
-                                    onclick="filterResults()">Sebastian Vettel</label>
+                            <select id="driverSelect" multiple onchange="filterResults()">
+                                {% for driver in drivers %}
+                                <option value="{{ driver.driver_id }}">{{ driver.f_name }} {{ driver.l_name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
                 </form>
