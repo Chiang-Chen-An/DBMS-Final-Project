@@ -9,7 +9,7 @@ app.secret_key = "your_secret_key"
 db_config = {
     'host': 'localhost',  # Change this to your MySQL host
     'user': 'root',  # Change this to your MySQL username
-    'password': 'Sagiri9498@',  # Change this to your MySQL password
+    'password': '03020302',  # Change this to your MySQL password
     'database': 'dbms_final'  # Change this to your MySQL database name
 }
 
@@ -570,6 +570,42 @@ ORDER BY
         print("error")
         return jsonify({'error': 'Failed to fetch ranking data'}), 500
 
+@app.route('/driver_ranking', methods=['GET'])
+def get_driver_ranking():
+    try:
+        db_connection = get_db_connection()
+        cursor = db_connection.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT 
+    CONCAT(drivers.f_name, ' ', drivers.l_name) AS name, 
+    SUM(results.points) AS total_points
+FROM 
+    results
+JOIN 
+    drivers ON results.driver_id = drivers.driver_id
+GROUP BY 
+    results.driver_id
+ORDER BY 
+    total_points DESC;
+
+        """)
+
+        results = cursor.fetchall()
+        print("results: ", results)
+        # 加入排名
+        for i, row in enumerate(results):
+            row['rank'] = i + 1
+
+        cursor.close()
+        db_connection.close()
+
+        
+        return jsonify(results)
+
+    except Exception as e:
+        print("error: {}".format(str(e)))
+        return jsonify({'error': 'Failed to fetch driver ranking data'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
