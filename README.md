@@ -11,15 +11,14 @@
   - [x] show data
   - [x] link to profile or wiki page route
   - [x] conditional selection
-- [ ] dynamic ranking
-  - [ ] rank data calulator
+- [x] dynamic ranking
+  - [x] rank data calulator
   - [x] ranking table 
-- [ ] constructor data profile (not necnssary for every constructor)
-- [ ] driver data profile (not necessary for every driver)
+- [x] driver data profile (not necessary for every driver)
 - [x] comment board
   - [x] comment table (in sql)
-- [ ] CRUD
+- [x] CRUD
   - [x] create new driver
   - [x] update driver data
   - [x] delete driver data
-  - ranking should be updated after every modification 
+  - [x] ranking should be updated after every modification 
