@@ -30,19 +30,48 @@
             display: none;
         }
 
-        #rankingTableContent tbody {
+        #rankingTableContent {
             display: block;
             max-height: 250px;
             /* Adjust the height as needed */
             overflow-y: scroll;
             overflow-x: hidden;
+            border-collapse: collapse;
         }
 
-        #rankingTableContent thead,
+        #rankingTableContent thead {
+            display: table;
+            width: 100%;
+            position: sticky;
+            top: 0;
+            table-layout: fixed;
+        }
+
+        #rankingTableContent tbody {
+            display: block;
+            width: 100%;
+            table-layout: fixed;
+        }
+
         #rankingTableContent tbody tr {
             display: table;
             width: 100%;
             table-layout: fixed;
+        }
+
+        #rankingTableContent th:nth-child(1),
+        #rankingTableContent td:nth-child(1) {
+            width: 20%;
+        }
+
+        #rankingTableContent th:nth-child(2),
+        #rankingTableContent td:nth-child(2) {
+            width: 50%;
+        }
+
+        #rankingTableContent th:nth-child(3),
+        #rankingTableContent td:nth-child(3) {
+            width: 30%;
         }
     </style>
     <script>
@@ -798,7 +827,7 @@
                 left: 100;
                 top: 100;
                 bottom: 0;
-                width: 300px;
+                width: 310px;
                 /* Adjust the width of the side panel */
                 background: #f4f4f4;
                 /* Optional background color */
