@@ -24,6 +24,22 @@
                 {% endif %}
             </div>
         </div>
+        <style>
+            .header {
+                display: flex;
+                justify-content: space-between; /* Spread the title and auth buttons apart */
+                align-items: center;  /* Vertically center them */
+                padding-right: 20px;
+            }
+            /* Apply flexbox to the auth-buttons */
+            .auth-buttons {
+                display: flex;
+                align-items: center; /* Vertically center the buttons */
+                gap: 100px; /* Adds space between the buttons */
+                justify-content: flex-start; /* Align buttons to the left (or center, or right) */
+                margin-left: 20px; /* Moves the auth-buttons slightly to the right */
+            }
+        </style>
 
         <!-- Navigation Buttons -->
         <div class="navigation">
@@ -63,6 +79,18 @@
                             </option>
                         {% endfor %}
                     </select><br><br>
+                    <style>
+                        select {
+                            display: block;  
+                            font-size: 16px;
+                            padding: 5px;
+                        }
+
+                        option {
+                            font-size: 16px;
+                            padding: 5px;
+                        }
+                    </style>
                 </div>
 
                 <div class="form-group">
