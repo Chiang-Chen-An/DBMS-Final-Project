@@ -140,7 +140,7 @@ create table races(
 
 -- results
 create table results(
-    result_id int NOT NULL,
+    result_id int NOT NULL AUTO_INCREMENT,
     race_id int,
     driver_id int,
     constructor_id int,
@@ -171,7 +171,7 @@ create table seasons(
 
 -- sprint_results
 create table sprint_results(
-    result_id int NOT NULL,
+    result_id int NOT NULL AUTO_INCREMENT,
     race_id int,
     driver_id int,
     constructor_id int,
