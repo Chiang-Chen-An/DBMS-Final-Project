@@ -9,7 +9,7 @@ app.secret_key = "your_secret_key"
 db_config = {
     'host': 'localhost',  # Change this to your MySQL host
     'user': 'root',  # Change this to your MySQL username
-    'password': '03020302',  # Change this to your MySQL password
+    'password': '',  # Change this to your MySQL password
     'database': 'dbms_final'  # Change this to your MySQL database name
 }
 
@@ -29,59 +29,46 @@ def homepage():
     cursor.execute('SELECT username, text, created_at FROM comments ORDER BY created_at DESC LIMIT 5')
     comments = cursor.fetchall()
 
-    try:
-        cursor.execute('SELECT en_short_name, nationality FROM countries ORDER BY en_short_name ASC')
-        countries = cursor.fetchall()
-    except Exception as e:
-        countries = []
-        flash(f'Error retrieving countries: {str(e)}', 'error')
-
     cursor.close()
     db_connection.close()
 
-    return render_template('homepage.html', comments = comments, countries=countries)
+    return render_template('homepage.html', comments = comments)
 
 @app.context_processor
-def inject_countries():
+def inject_data():
     db_connection = get_db_connection()
     cursor = db_connection.cursor(dictionary=True)
+    
+    # 初始化空列表
+    countries = []
+    races = []
+    drivers = []
+    
     try:
+        # 獲取國家數據
         cursor.execute('SELECT en_short_name, nationality FROM countries ORDER BY en_short_name ASC')
         countries = cursor.fetchall()
     except Exception as e:
-        countries = []
         flash(f'Error retrieving countries: {str(e)}', 'error')
-    cursor.close()
-    db_connection.close()
-    return dict(countries=countries)
-
-@app.context_processor
-def inject_countries():
-    db_connection = get_db_connection()
-    cursor = db_connection.cursor(dictionary=True)
+    
     try:
+        # 獲取賽道數據
         cursor.execute('SELECT DISTINCT circuit_name FROM races ORDER BY circuit_name ASC')
         races = cursor.fetchall()
     except Exception as e:
-        races = []
-        flash(f'Error retrieving countries: {str(e)}', 'error')
-    cursor.close()
-    db_connection.close()
-    return dict(races=races)
-
-@app.context_processor
-def inject_drivers():
-    db_connection = get_db_connection()
-    cursor = db_connection.cursor(dictionary=True)
+        flash(f'Error retrieving races: {str(e)}', 'error')
+    
     try:
+        # 獲取司機數據
         cursor.execute('SELECT driver_id, f_name, l_name FROM drivers ORDER BY f_name ASC')
         drivers = cursor.fetchall()
     except Exception as e:
-        drivers = []
         flash(f'Error retrieving drivers: {str(e)}', 'error')
+    
     cursor.close()
     db_connection.close()
-    return dict(drivers=drivers)
+    
+    return dict(countries=countries, races=races, drivers=drivers)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -234,7 +221,7 @@ def insertDriver():
             cursor.execute('SELECT driver_id FROM drivers WHERE driver_id = %s;',(i,))
             if cursor.rowcount == 0:
                 driver_id = i
-                break;
+                break
         f_name = request.form.get('f_name')
         l_name = request.form.get('l_name')
         date_of_birth = request.form.get('date_of_birth')

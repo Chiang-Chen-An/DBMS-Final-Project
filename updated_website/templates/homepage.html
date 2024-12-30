@@ -484,11 +484,25 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            const flashMessages = document.getElementById("flash-messages");
+
+            if (flashMessages) {
+                // 設置 5 秒後自動隱藏
+                setTimeout(() => {
+                    flashMessages.style.transition = "opacity 0.5s ease-out";
+                    flashMessages.style.opacity = "0";
+
+                    // 從 DOM 中移除 Flash 區塊
+                    setTimeout(() => {
+                        flashMessages.remove();
+                    }, 500);
+                }, 5000); // 5000 毫秒 = 5 秒
+            }
+
             loadDrivers(currentPage);
             loadRanking();
             loadDriverRanking();
         });
-
 
         function filterResults() {
             // const selectedYears = Array.from(document.querySelectorAll('.yearOption:checked')).map(checkbox => checkbox.value);
@@ -666,7 +680,7 @@
                 </tbody>
             </table>
 
-            <div class="insert-user" id="insert-user">
+            <div id="flash-messages">
                 {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                 <ul class="flashes">
@@ -676,6 +690,9 @@
                 </ul>
                 {% endif %}
                 {% endwith %}
+            </div>
+
+            <div class="insert-user" id="insert-user">
                 <form action="/insertUser" method="POST">
                     <label for="username">Username:</label>
                     <input type="text" id="username" name="username" placeholder="Enter Username" required><br><br>
@@ -688,15 +705,6 @@
             </div>
 
             <div class="insert-driver" id="insert-driver">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                <ul class="flashes">
-                    {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-                {% endwith %}
                 <form action="/insertDriver" method="POST">
                     <label for="f_name">First Name:</label>
                     <input type="text" id="f_name" name="f_name" placeholder="Enter First Name" required><br><br>
@@ -735,15 +743,6 @@
             </div>
 
             <div class="insert-result" id="insert-result">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                <ul class="flashes">
-                    {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-                {% endwith %}
                 <form action="/insertResult" method="POST">
                     <label for="race_id">Race ID:</label>
                     <input type="number" id="race_id" name="race_id" placeholder="Enter Race ID" required><br><br>
@@ -801,15 +800,6 @@
             </div>
 
             <div class="driverSearchContainer" id="driverSearchContainer">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                <ul class="flashes">
-                    {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-                {% endwith %}
                 <form onsubmit="event.preventDefault(); searchDriver();">
                     <label for="driverSearchFirstName">First Name:</label>
                     <input type="text" id="driverSearchFirstName" placeholder="Enter First Name"><br><br>
