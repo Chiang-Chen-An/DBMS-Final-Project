@@ -221,7 +221,7 @@ def insertDriver():
             cursor.execute('SELECT driver_id FROM drivers WHERE driver_id = %s;',(i,))
             if cursor.rowcount == 0:
                 driver_id = i
-                break
+                break;
         f_name = request.form.get('f_name')
         l_name = request.form.get('l_name')
         date_of_birth = request.form.get('date_of_birth')
