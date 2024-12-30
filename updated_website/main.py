@@ -9,7 +9,7 @@ app.secret_key = "your_secret_key"
 db_config = {
     'host': 'localhost',  # Change this to your MySQL host
     'user': 'root',  # Change this to your MySQL username
-    'password': '',  # Change this to your MySQL password
+    'password': 'ubuntu',  # Change this to your MySQL password
     'database': 'dbms_final'  # Change this to your MySQL database name
 }
 
@@ -108,7 +108,7 @@ def register():
                 cursor.close()
                 db_connection.close()
 
-            flash('Account created successfully', 'success')
+
             return redirect('/register')
         else:
             flash('please enter a valid username and password', "danger")
