@@ -491,26 +491,28 @@
 
 
         function filterResults() {
-            const selectedYears = Array.from(document.querySelectorAll('.yearOption:checked')).map(checkbox => checkbox.value);
-            const selectedDrivers = Array.from(document.querySelectorAll('.driverOption:checked')).map(checkbox => checkbox.value);
+            // const selectedYears = Array.from(document.querySelectorAll('.yearOption:checked')).map(checkbox => checkbox.value);
+            const selectedRacesOptions = Array.from(document.getElementById('raceSelect').selectedOptions).map(option => option.value);
 
             // result table filter
             const raceTableRows = document.querySelectorAll('#resultsTable tbody tr');
             raceTableRows.forEach(row => {
                 const match = row.querySelectorAll('td')[1].textContent.trim();
 
-                if (selectedYears.length === 0 || selectedYears.includes(match)) {
+                if (selectedRacesOptions.length === 0 || selectedRacesOptions.includes(match)) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
                 }
             });
 
-            // driver table filter
+            const selectedDriverOptions = Array.from(document.getElementById('driverSelect').selectedOptions).map(option => option.value);
+
+            // 篩選 driverTable
             const driverTableRows = document.querySelectorAll('#driverTable tbody tr');
             driverTableRows.forEach(row => {
                 const driverId = row.querySelector('td').textContent.trim();
-                if (selectedDrivers.length === 0 || selectedDrivers.includes(driverId)) {
+                if (selectedDriverOptions.length === 0 || selectedDriverOptions.includes(driverId)) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
@@ -676,9 +678,11 @@
                 {% endwith %}
                 <form action="/insertUser" method="POST">
                     <label for="username">Username:</label>
-                    <input type="text" id="username" name="username">
+                    <input type="text" id="username" name="username" placeholder="Enter Username" required><br><br>
+
                     <label for="password">Password:</label>
-                    <input type="password" id="password" name="password">
+                    <input type="password" id="password" name="password" placeholder="Enter Password" required><br><br>
+
                     <button type="submit">Add New User</button>
                 </form>
             </div>
@@ -695,17 +699,16 @@
                 {% endwith %}
                 <form action="/insertDriver" method="POST">
                     <label for="f_name">First Name:</label>
-                    <input type="text" id="f_name" name="f_name" required><br><br>
+                    <input type="text" id="f_name" name="f_name" placeholder="Enter First Name" required><br><br>
 
                     <label for="l_name">Last Name:</label>
-                    <input type="text" id="l_name" name="l_name" required><br><br>
+                    <input type="text" id="l_name" name="l_name" placeholder="Enter Last Name" required><br><br>
 
                     <label for="date_of_birth">Date of Birth:</label>
-                    <input type="date" id="date_of_birth" name="date_of_birth" required><br><br>
+                    <input type="date" id="date_of_birth" name="date_of_birth" placeholder="Enter Date of Birth" required><br><br>
 
                     <label for="nationality">Nationality:</label>
                     <select id="nationality" name="nationality" required>
-                        <pre>{{ countries }}</pre>
                         <option value="">Select a country</option>
                         {% for country in countries %}
                         <option value="{{ country.nationality }}">{{ country.en_short_name }}</option>
@@ -725,7 +728,7 @@
                     </style>
 
                     <label for="wiki_url">Wikipedia URL:</label>
-                    <input type="url" id="wiki_url" name="wiki_url" required><br><br>
+                    <input type="url" id="wiki_url" name="wiki_url" placeholder="Enter Wikipedia URL" required><br><br>
 
                     <button type="submit">Add Driver</button>
                 </form>
@@ -743,55 +746,55 @@
                 {% endwith %}
                 <form action="/insertResult" method="POST">
                     <label for="race_id">Race ID:</label>
-                    <input type="number" id="race_id" name="race_id" required><br><br>
+                    <input type="number" id="race_id" name="race_id" placeholder="Enter Race ID" required><br><br>
 
                     <label for="driver_id">Driver ID:</label>
-                    <input type="number" id="driver_id" name="driver_id" required><br><br>
+                    <input type="number" id="driver_id" name="driver_id" placeholder="Enter Driver ID" required><br><br>
 
                     <label for="constructor_id">Constructor ID:</label>
-                    <input type="number" id="constructor_id" name="constructor_id" required><br><br>
+                    <input type="number" id="constructor_id" name="constructor_id" placeholder="Enter Constructor ID" required><br><br>
 
                     <label for="car_num">Car Number:</label>
-                    <input type="number" id="car_num" name="car_num" required><br><br>
+                    <input type="number" id="car_num" name="car_num" placeholder="Enter Car Number" required><br><br>
 
                     <label for="position_grid">Position Grid:</label>
-                    <input type="number" id="position_grid" name="position_grid" required><br><br>
+                    <input type="number" id="position_grid" name="position_grid" placeholder="Enter Position Grid" required><br><br>
 
                     <label for="position">Position:</label>
-                    <input type="number" id="position" name="position" required><br><br>
+                    <input type="number" id="position" name="position" placeholder="Enter Position" required><br><br>
 
                     <label for="position_text">Position Text:</label>
-                    <input type="text" id="position_text" name="position_text" required><br><br>
+                    <input type="text" id="position_text" name="position_text" placeholder="Enter Position Text" required><br><br>
 
                     <label for="position_order">Position Order:</label>
-                    <input type="number" id="position_order" name="position_order" required><br><br>
+                    <input type="number" id="position_order" name="position_order" placeholder="Enter Position Order" required><br><br>
 
                     <label for="points">Points:</label>
-                    <input type="number" id="points" name="points" required><br><br>
+                    <input type="number" id="points" name="points" placeholder="Enter Points" required><br><br>
 
                     <label for="laps">Laps:</label>
-                    <input type="number" id="laps" name="laps" required><br><br>
+                    <input type="number" id="laps" name="laps" placeholder="Enter Laps" required><br><br>
 
                     <label for="time">Time:</label>
-                    <input type="text" id="time" name="time" required><br><br>
+                    <input type="text" id="time" name="time" placeholder="Enter Time (HH:MM:SS)" required><br><br>
 
                     <label for="time_in_milliseconds">Time in Milliseconds:</label>
-                    <input type="number" id="time_in_milliseconds" name="time_in_milliseconds" required><br><br>
+                    <input type="number" id="time_in_milliseconds" name="time_in_milliseconds" placeholder="Enter Time in Milliseconds" required><br><br>
 
                     <label for="fastest_lap">Fastest Lap:</label>
-                    <input type="number" id="fastest_lap" name="fastest_lap" required><br><br>
+                    <input type="number" id="fastest_lap" name="fastest_lap" placeholder="Enter Fastest Lap" required><br><br>
 
                     <label for="rank_of_fastest_lap">Rank of Fastest Lap:</label>
-                    <input type="number" id="rank_of_fastest_lap" name="rank_of_fastest_lap" required><br><br>
+                    <input type="number" id="rank_of_fastest_lap" name="rank_of_fastest_lap" placeholder="Enter Rank of Fastest Lap" required><br><br>
 
                     <label for="fastest_lap_time">Fastest Lap Time:</label>
-                    <input type="text" id="fastest_lap_time" name="fastest_lap_time" required><br><br>
+                    <input type="text" id="fastest_lap_time" name="fastest_lap_time" placeholder="Enter Fastest Lap Time (HH:MM:SS)" required><br><br>
 
                     <label for="fastest_lap_speed">Fastest Lap Speed:</label>
-                    <input type="number" id="fastest_lap_speed" name="fastest_lap_speed" required><br><br>
+                    <input type="number" id="fastest_lap_speed" name="fastest_lap_speed" placeholder="Enter Fastest Lap Speed" required><br><br>
 
                     <label for="status_id">Status ID:</label>
-                    <input type="number" id="status_id" name="status_id" required><br><br>
+                    <input type="number" id="status_id" name="status_id" placeholder="Enter Status ID" required><br><br>
 
                     <button type="submit">Add Result</button>
                 </form>
@@ -838,16 +841,11 @@
                     <div class="filter-group">
                         <div id="yearOptions" style="display:none;">
                             <label>By Races</label>
-                            <label><input type="checkbox" class="yearOption" value="Bahrain Grand Prix"
-                                    onclick="filterResults()">Bahrain Grand Prix</label>
-                            <label><input type="checkbox" class="yearOption" value="Saudi Arabian Grand Prix"
-                                    onclick="filterResults()">Saudi Arabian Grand Prix</label>
-                            <label><input type="checkbox" class="yearOption" value="Australian Grand Prix"
-                                    onclick="filterResults()">Australian Grand Prix</label>
-                            <label><input type="checkbox" class="yearOption" value="Japanese Grand Prix"
-                                    onclick="filterResults()">Japanese Grand Prix</label>
-                            <label><input type="checkbox" class="yearOption" value="Chinese Grand Prix"
-                                    onclick="filterResults()">Chinese Grand Prix</label>
+                            <select id="raceSelect" multiple onchange="filterResults()">
+                                {% for race in races %}
+                                <option value="{{ race.circuit_name }}">{{ race.circuit_name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
 

@@ -56,6 +56,20 @@ def inject_countries():
     return dict(countries=countries)
 
 @app.context_processor
+def inject_countries():
+    db_connection = get_db_connection()
+    cursor = db_connection.cursor(dictionary=True)
+    try:
+        cursor.execute('SELECT DISTINCT circuit_name FROM races ORDER BY circuit_name ASC')
+        races = cursor.fetchall()
+    except Exception as e:
+        races = []
+        flash(f'Error retrieving countries: {str(e)}', 'error')
+    cursor.close()
+    db_connection.close()
+    return dict(races=races)
+
+@app.context_processor
 def inject_drivers():
     db_connection = get_db_connection()
     cursor = db_connection.cursor(dictionary=True)
