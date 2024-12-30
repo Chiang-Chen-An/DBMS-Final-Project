@@ -483,6 +483,55 @@
             }
         }
 
+        
+        let currentyear = 2024;
+        const yearsPerPage = 6;
+        const lowerbound = 1950;
+
+        function initializeButtons() {
+            const buttonList = document.getElementById('year-button-list');
+            buttonList.innerHTML = '';
+
+            for (let i = 2024; i >= lowerbound; i--) {
+                const li = document.createElement('li');
+                const button = document.createElement('button');
+                button.id = i;
+                button.innerText = i;
+                button.onclick = () => showResults(i);
+                li.appendChild(button);
+                buttonList.appendChild(li);
+            }
+
+            showButton(currentyear);
+        }
+
+        function showButton(page) {
+            if (page < 1950 || page > 2024) {
+                return;
+            }
+
+            console.log(page);
+            currentyear = page;
+
+            const buttonList = document.getElementById('year-button-list');
+            const buttons = buttonList.getElementsByTagName('li');
+
+            const startIndex = currentyear;
+            const endIndex = Math.max(startIndex - 6, lowerbound);
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].style.display = 'none';
+            }
+
+            for (let i = startIndex; i > endIndex; i--) {
+                buttons[2024 - i].style.display = 'inline-block';
+            }
+
+            document.getElementById('year-prev-btn').style.display = (currentyear === 2024) ? 'none' : 'inline-block';
+            document.getElementById('year-next-btn').style.display = (currentyear === 1952) ? 'none' : 'inline-block';
+        }
+
+            
         document.addEventListener('DOMContentLoaded', () => {
             const flashMessages = document.getElementById("flash-messages");
 
@@ -498,7 +547,8 @@
                     }, 500);
                 }, 5000); // 5000 毫秒 = 5 秒
             }
-
+            
+            initializeButtons();
             loadDrivers(currentPage);
             loadRanking();
             loadDriverRanking();
@@ -633,15 +683,9 @@
         </style>
         <div class="content_container">
             <div class="year-buttons">
-                <ul>
-                    <li><button id="2024" onclick="showResults(2024)">2024</button></li>
-                    <li><button id="2023" onclick="showResults(2023)">2023</button></li>
-                    <li><button id="2022" onclick="showResults(2022)">2022</button></li>
-                    <li><button id="2021" onclick="showResults(2021)">2021</button></li>
-                    <li><button id="2020" onclick="showResults(2020)">2020</button></li>
-                    <li><button id="2019" onclick="showResults(2019)">2019</button></li>
-                    <li><button id="2018" onclick="showResults(2018)">2018</button></li>
-                </ul>
+                <button id="year-prev-btn" style="display: none;" onclick="showButton(currentyear + 6)">Prev Page</button>
+                <ul id="year-button-list"></ul>
+                <button id="year-next-btn" style="display: none;" onclick="showButton(currentyear - 6)">Next Page</button>
             </div>
 
             <div class="driver-buttons">
