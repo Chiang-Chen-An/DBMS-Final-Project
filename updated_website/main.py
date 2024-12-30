@@ -9,11 +9,7 @@ app.secret_key = "your_secret_key"
 db_config = {
     'host': 'localhost',  # Change this to your MySQL host
     'user': 'root',  # Change this to your MySQL username
-<<<<<<< HEAD
     'password': '03020302',  # Change this to your MySQL password
-=======
-    'password': 'ubuntu',  # Change this to your MySQL password
->>>>>>> 9ad66736f879bd8608115a64e3f9f9377f4f9a23
     'database': 'dbms_final'  # Change this to your MySQL database name
 }
 
@@ -487,18 +483,18 @@ def modifyDriver(driver_id):
         cursor.close()
         db_connection.close()
 
-@app.route('/ranking', methods=['GET'])
-def get_ranking():
-    db_connection = get_db_connection()
-    cursor = db_connection.cursor(dictionary=True)
+# @app.route('/ranking', methods=['GET'])
+# def get_ranking():
+#     db_connection = get_db_connection()
+#     cursor = db_connection.cursor(dictionary=True)
 
-    cursor.execute('SELECT driver_name, points FROM rankings ORDER BY points DESC')
-    rankings = cursor.fetchall()
+#     cursor.execute('SELECT driver_name, points FROM rankings ORDER BY points DESC')
+#     rankings = cursor.fetchall()
 
-    cursor.close()
-    db_connection.close()
+#     cursor.close()
+#     db_connection.close()
 
-    return jsonify(rankings)
+#     return jsonify(rankings)
 
 @app.route('/add_comment', methods=['POST'])
 def add_comment():
@@ -520,6 +516,45 @@ def add_comment():
 
     flash('成功送出', 'success')
     return redirect('/')
+
+@app.route('/ranking', methods=['GET'])
+def get_ranking():
+    try:
+        db_connection = get_db_connection()
+        cursor = db_connection.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT 
+                constructors.constructor_name,
+                SUM(points) AS total_points,
+    COUNT(wins) AS total_wins 
+            FROM 
+                constructor_standings
+            JOIN 
+                constructors ON constructor_standings.constructor_id = constructors.constructor_id
+            GROUP BY 
+    constructor_standings.constructor_id
+ORDER BY 
+    total_points DESC, -- 先依分數排序
+    total_wins DESC; 
+        """)
+
+        results = cursor.fetchall()
+
+        # 加入排名
+        for i, row in enumerate(results):
+            row['rank'] = i + 1
+
+        cursor.close()
+        db_connection.close()
+
+        print("results: ", results)
+        return jsonify(results)
+
+    except Exception as e:
+        print("error")
+        return jsonify({'error': 'Failed to fetch ranking data'}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
